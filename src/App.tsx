@@ -5,7 +5,8 @@ import { Collapsible } from './Filter';
 import { Filter } from './FilterInput';
 import { GroupAndSelectData } from './GroupAndSelectData';
 import { NumberInput } from './NumberInput';
-import { groupDataByDay, Table } from './Table';
+import { Pagination } from './Pagination';
+import { Table } from './Table';
 
 const data = require('./data/data-0.json');
 
@@ -19,84 +20,89 @@ export interface Item extends JSON {
   quantity: number
 }
 
-// If value is present in 'filteredVals', it will be filtered out
-function filterByVal (val: string, filteredVals: string[]) {
-  return filteredVals.indexOf(val) === -1;
-};
-
-// 'filterByMinMax' tests whether a value is within the bounds of a min and/or a max value
-// Only 'min' or 'max' is required for the function to filter
-// If neither is defined/nonnull, no value will be filtered
-function filterByMinMax (val: number, min: number | null | undefined, max: number | null | undefined) {
-  if (
-    (val < (min || -Infinity)) || // If there's a min and val is smaller
-    (val > (max || Infinity))     // or there's a max and val is greater
-  ) {
-    return false;                 // return false
-  }
-
-  return true;                    // else return true
-};
-
-// Similar to Underscore.JS's pluck(). Takes a 'key', and returns set of all values contained on that key in the array of refrigerator items
-function pluckSet (key: string) {
-  return data
-    .reduce((acc: string[], v: Item) => {
-      if (acc.indexOf(v[key]) === -1) {
-        acc.push(v[key]);
-      }
-
-      return acc;
-    }, [] as string[])
-    .sort();
-}
-
-interface IState {
-  boughtAfterExpiration: Item[];
-  dataByDate: Item[];
-  dataByDateAndItemName: { [key: string]: {[key: string]: number }};
-  expiredDataOnly: boolean;
-  filteredNames: string[];
-  filteredTypes: string[];
-  filteredStores: string[];
-  groupDataBy: "day" | "purchase" | "item";
-  values: {
-    types: string[];
-    names: string[];
-    stores: string[];
-    purchase: {
-      min: number;
-      max: number;
-    };
-    exp: {
-      min: number;
-      max: number;
-    };
-    qty: {
-      min: number;
-      max: number;
-    };
-  };
-  pageOffset: number;
-  pageSize: number;
-  purchaseMin: null | number;
-  purchaseMax: null | number;
-  expMin: null | number;
-  expMax: null | number;
-  qtyMin: null | number;
-  qtyMax: null | number;
-};
-
-
 class App extends React.Component<{}, IState> {
   constructor(props: {}) {
     super(props);
 
     this.state = getDefaultState(this.filterItem);
+
+    this.setTableData = this.setTableData.bind(this);
   }
 
-  // Returns false if item is to be filtered out
-  public filterItem = (fridgeItem: Item) => {
+  public render() {
+    return (
+      <main className="App">
+        <div className="results">
+          <section className="filters">
+            <div className="filtersHeader">
+              <span>Filters</span>
+              <span onClick={this.resetFilters} className="resetFilters">↻ Reset filters</span>
+            </div>
+            <div className="filterSections">
+            {this.filterInputs().map((input, i) => 
+              <Collapsible {...{key: i, label: input.label, defaultOpen: input.defaultOpen, }}>  
+                {input.form}
+              </Collapsible> 
+            )}
+            </div>
+          </section>
+          <section>
+            <Table {...this.tableProps()} />
+            <Pagination {...this.paginationProps()} />
+          </section>
+        </div>
+      </main>
+    );
+  }
+
+  private filterInputs = () => ([
+    {
+      defaultOpen: true,
+      form: <GroupAndSelectData {...this.groupAndSelectDataProps()} />,
+      label: "Choose data/table",
+    },
+    {
+      form: <Filter {...this.nameFilterProps()} />,
+      label: "Name",
+    },
+    {
+      form: <Filter  {...this.typeFilterProps()} />,
+      label: "Type",
+    },
+    {
+      form: <Filter {...this.storeFilterProps()}/>,
+      label: "Store",
+    },
+    {
+      form:
+        <div className="excludeContainer">
+          <DatePicker {...this.purchaseMinDateProps()} />
+          <DatePicker {...this.purchaseMaxDateProps()} />
+        </div>,
+      label: "Purchase date",
+    },
+    {
+      form:
+        <div className="excludeContainer">
+          <DatePicker {...this.expDateMinProps()} />
+          <DatePicker {...this.expDateMaxProps()} />
+        </div>,
+      label: "Expiration date", 
+    },
+    {
+      form:
+        <div className="excludeContainer">
+          <NumberInput {...this.qtyMinProps()} />
+          <NumberInput {...this.qtyMaxProps()} />
+        </div>,
+      label: "Quantity",
+    },
+  ])
+
+  private resetFilters = () => {
+    this.setState(getDefaultState(this.filterItem));
+  }
+  private filterItem = (fridgeItem: Item, ignoreQty?: boolean) => {
     return(
       filterByVal(fridgeItem.name, this.state.filteredNames) &&
       filterByVal(fridgeItem.store, this.state.filteredStores) &&
@@ -111,23 +117,24 @@ class App extends React.Component<{}, IState> {
         this.state.expMin,
         this.state.expMax
       ) &&
-      filterByMinMax(fridgeItem.quantity, this.state.qtyMin, this.state.qtyMax)
+      (ignoreQty ? true : filterByMinMax(fridgeItem.quantity, this.state.qtyMin, this.state.qtyMax))
     );
   }
-
+  private filterByQty = (qty: number) => {
+    return filterByMinMax(qty, this.state.qtyMin, this.state.qtyMax);
+  }
   // Add or remove value from filter
-  public toggleValueFilter = (val: string, exclude: string[]) => {
+  private toggleFilter = (val: string, exclude: string[]) => {
     if (exclude.indexOf(val) === -1) {
       exclude.push(val);
 
-      return exclude;
+      return exclude.sort();
     } else {
-      return exclude.filter(v => v !== val);
+      return exclude.filter(v => v !== val).sort();
     }
   }
-
   // If string has valid ISO format, call 'dateChange' with new Date, else call function with null argument; 
-  public getDateObjIfValidISO = (dateStringISO: string | null | undefined, dateChange: (date: Date | null) => void) => {
+  private getDateObjIfValidISO = (dateStringISO: string | null | undefined, dateChange: (date: Date | null) => void) => {
     if (!dateStringISO){
       dateChange(null);
     } else {
@@ -138,93 +145,114 @@ class App extends React.Component<{}, IState> {
       }
     }
   }
-
-  // Determines whether table will display data grouped by item-purchase, by day and item, or by item and quanity
-  public setDataGrouping = (e: React.MouseEvent<HTMLLabelElement>) => 
-    this.setState({ groupDataBy: e.currentTarget.title as "day" | "purchase" | "item", });
-
-  public toggleExpiredDataOnly = (e: React.MouseEvent<HTMLLabelElement>) =>
-    this.setState({ expiredDataOnly: !this.state.expiredDataOnly, });
-
-  public resetFilters = () =>
-    this.setState(getDefaultState(this.filterItem));
-
-  public render() {
-    return (
-      <main className="App">
-        <div className="results">
-          <section className="filters">
-            <div className="filtersHeader">
-              <span>Filter</span>
-              <span>↻ Reset filters</span>
-            </div>
-            <Collapsible {...{label: "Choose data/table", defaultOpen: true, }}>
-              <GroupAndSelectData {...this.groupAndSelectDataProps()}/>
-            </Collapsible> 
-            <Collapsible {...{label: "Name"}}>
-              <Filter {...this.nameFilterProps()} />
-            </Collapsible>
-            <Collapsible {...{label: "Type"}}>
-              <Filter  {...this.typeFilterProps()} />
-            </Collapsible>
-            <Collapsible {...{label: "Store"}}>
-              <Filter {...this.storeFilterProps()}/>
-            </Collapsible>
-            <Collapsible {...{label: "Purchase date"}}>
-              <div className="excludeContainer">
-                <DatePicker {...this.purchaseMinDateProps()} />
-                <DatePicker {...this.purchaseMaxDateProps()} />
-              </div>
-            </Collapsible>
-            <Collapsible {...{label: "Expiration date"}}>
-              <div className="excludeContainer">
-                <DatePicker {...this.expDateMinProps()} />
-                <DatePicker {...this.expDateMaxProps()} />
-              </div>
-            </Collapsible>
-            <Collapsible {...{label: "Quantity"}}>
-              <div className="excludeContainer">
-                <NumberInput {...this.qtyMinProps()} />
-                <NumberInput {...this.qtyMaxProps()} />
-              </div>
-            </Collapsible>
-
-          </section>
-          <Table {...this.tableProps()}
-          /> 
-        </div>
-      </main>
-    );
+  // Determines whether table will display 
+  // 1. purchases ungrouped ('purchase') or
+  // 2. purchases grouped by date and display items purchase and quantities purchased on that date or
+  // 3. Items alphabetically with quantities purchased
+  private setDataGrouping = (e: React.MouseEvent<HTMLLabelElement>) => {
+    this.setState({ groupDataBy: e.currentTarget.title as "day" | "purchase" | "item", }, () => this.setTableData());
   }
+  private toggleExpiredDataOnly = (e: React.MouseEvent<HTMLLabelElement>) => {
+    this.setState({ expiredDataOnly: !this.state.expiredDataOnly, }, () => this.setTableData());
+  }
+  private changePage = (e: React.MouseEvent<HTMLDivElement | HTMLInputElement> | React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
+    const { title } = e.currentTarget;
+    const manualInput = parseInt(title, 10);
+
+    if (manualInput && ((manualInput - 1) * this.state.pageSize) < this.state.tableRowCount) {
+      this.setState({
+        pageOffset: this.state.pageSize * (manualInput - 1) ,
+      });
+    } else if (title === "prev") {
+      if (this.state.pageOffset >= this.state.pageSize) {
+        this.setState({
+          pageOffset: this.state.pageOffset - this.state.pageSize, 
+        });
+      } else {
+        this.setState({ 
+          pageOffset: ((Math.floor(this.state.tableRowCount / this.state.pageSize ) - 1) * this.state.pageSize) ,
+        });
+      }
+    }  else if (title === "next") {
+      const newPageOffset = this.state.pageOffset + this.state.pageSize;
+      const notOnLastPage = newPageOffset < this.state.tableRowCount;
+       
+      if (notOnLastPage) {
+        this.setState({
+          pageOffset: newPageOffset,
+        });
+      } else {
+        this.setState({
+          pageOffset: 0,
+        });
+      }
+    }
+  }
+  private setPageSize = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const val = parseInt(e.currentTarget.title, 10);
+
+    if (!isNaN(val)) {
+      const newPageSize = val;
+
+      this.setState({
+        pageOffset: Math.floor(this.state.pageOffset / newPageSize) * newPageSize,
+        pageSize: newPageSize,
+      });
+    }
+  }
   // Set min/max filter values
-  private setPurchaseMin = (date: Date | null) => this.setState({ purchaseMin: date && date.valueOf() || null });
-  private setPurchaseMax = (date: Date | null) => this.setState({ purchaseMax: date && date.valueOf() || null });
-  private setExpMax      = (date: Date | null) => this.setState({ expMax: date && date.valueOf() || null });
-  private setExpMin      = (date: Date | null) => this.setState({ expMin: date && date.valueOf() || null });
-  private setQtyMin = (val: string | null) => this.setState({ qtyMin: val && parseInt(val, 10) || null, });
-  private setQtyMax = (val: string | null) => this.setState({ qtyMax: val && parseInt(val, 10) || null, });
+  private setPurchaseMin = (date: Date | null) => this.setState({ purchaseMin: date && date.valueOf() || null }, () => this.setTableData());
+  private setPurchaseMax = (date: Date | null) => this.setState({ purchaseMax: date && date.valueOf() || null }, () => this.setTableData());
+  private setExpMax      = (date: Date | null) => this.setState({ expMax: date && date.valueOf() || null }, () => this.setTableData());
+  private setExpMin      = (date: Date | null) => this.setState({ expMin: date && date.valueOf() || null }, () => this.setTableData());
+  private setQtyMin = (e: React.ChangeEvent<HTMLInputElement>) => this.setState({ qtyMin: parseInt(e.target.value, 10) || null, }, () => this.setTableData());
+  private setQtyMax = (e: React.ChangeEvent<HTMLInputElement>) => this.setState({ qtyMax: parseInt(e.target.value, 10) || null, }, () => this.setTableData());  
+  // Apply filters to data
+  private setTableData = () => {
+    const dataToRender = this.state.expiredDataOnly ? this.state.boughtAfterExpiration : this.state.dataByDate;
 
-  // Get props
+    switch(this.state.groupDataBy) {
+      case 'purchase':
+        this.setState({ dataByPurchase: getPageData(dataToRender, this.filterItem), },
+          () => this.setState({tableRowCount: this.state.dataByPurchase && this.state.dataByPurchase.length || 0})
+        );
+        break;
+      case 'day':
+        this.setState({ dataByDateAndItemName: groupDataByDay(dataToRender, this.filterItem, this.filterByQty), },
+          () => this.setState({tableRowCount: this.state.dataByDateAndItemName && Object.keys(this.state.dataByDateAndItemName).length || 0,})
+        );
+        break;
+      case 'item':
+        this.setState({ dataByItem: dataGroupedByItem(dataToRender, this.filterItem, this.filterByQty), },
+          () => this.setState({ tableRowCount: this.state.dataByItem && Object.keys(this.state.dataByItem).length || 0, })
+        );
+        break;
+    }
+  }
+  // All methods below get props for other components
   private nameFilterProps = () => ({
     exclude: this.state.filteredNames,
     key: "name",
     onClick: (val: string) =>
-      this.setState({ filteredNames: this.toggleValueFilter(val, this.state.filteredNames), }),
+      this.setState({ filteredNames: this.toggleFilter(val, this.state.filteredNames), }, () => this.setTableData()),
     values: this.state.values.names,
   })
   private typeFilterProps = () => ({
     exclude: this.state.filteredTypes,
     key: "type",
     onClick: (val: string) =>
-    this.setState({ filteredTypes: this.toggleValueFilter(val, this.state.filteredTypes), }),
+    this.setState({ filteredTypes: this.toggleFilter(val, this.state.filteredTypes), }, () => this.setTableData()),
     values: this.state.values.types
   })
   private storeFilterProps = () => ({
     exclude: this.state.filteredStores,
     key: "store",
     onClick: (val: string) =>
-    this.setState({ filteredStores: this.toggleValueFilter(val, this.state.filteredStores), }),
+    this.setState({ filteredStores: this.toggleFilter(val, this.state.filteredStores), }, () => this.setTableData()),
     values: this.state.values.stores,
   })
   private purchaseMinDateProps = () => ({
@@ -270,16 +298,12 @@ class App extends React.Component<{}, IState> {
   private qtyMinProps = () => ({
     id: "quantityMin",
     label: "Quantity at least",
-    // max: this.state.values.qty.max,
-    // min: this.state.values.qty.min,
     onChange: this.setQtyMin,
     value: this.state.values.qty.min,
   })
   private qtyMaxProps = () => ({
     id: "quantityMax",
     label: "Quantity at most",
-    // max: this.state.values.qty.max,
-    // min: this.state.qtyMin || this.state.values.qty.min,
     onChange: this.setQtyMax,
     value: this.state.qtyMax || undefined,
   })
@@ -291,27 +315,113 @@ class App extends React.Component<{}, IState> {
   })
   private tableProps = () => {
     const {
-      groupDataBy,
-      expiredDataOnly,
       boughtAfterExpiration,
-      dataByDate,
-      pageSize,
+      dataByItem,
+      dataByPurchase,
+      dataByDateAndItemName,
+      groupDataBy,
       pageOffset,
+      pageSize,
+      tableRowCount,
     } = this.state;
 
     return({
       boughtAfterExpiration,
-      dataByDate,
-      expiredDataOnly,
-      filterItem: this.filterItem,
+      dataByDateAndItemName,
+      dataByItem,
+      dataByPurchase,
       groupDataBy,
       pageOffset,
       pageSize,
-    })
+      tableRowCount,
+    });
+  }
+  private paginationProps = () => ({
+    changePage: this.changePage,
+    changePageSize: this.setPageSize,
+    itemCount: this.state.tableRowCount,
+    pageOffset: this.state.pageOffset,
+    pageSize: this.state.pageSize,
+    ...this.filterProps(),
+  })
+  private filterProps = () => {
+    const {
+      groupDataBy,
+      expiredDataOnly,
+      pageSize,
+      pageOffset,
+      filteredNames,
+      filteredTypes,
+      filteredStores,
+      tableRowCount,
+      purchaseMin,
+      purchaseMax,
+      expMin,
+      expMax,
+      qtyMin,
+      qtyMax,
+    } = this.state;
+
+    return ({
+      expMax,
+      expMin,
+      expiredDataOnly,
+      filteredNames,
+      filteredStores,
+      filteredTypes,
+      groupDataBy,
+      pageOffset,
+      pageSize,
+      purchaseMax,
+      purchaseMin,
+      qtyMax,
+      qtyMin,
+      tableRowCount,
+    });
   }
 }
 
 export default App;
+
+
+interface IState {
+  boughtAfterExpiration: Item[];
+  dataByDate: Item[];
+  dataByDateAndItemName: { [key: string]: {[key: string]: number }};
+  dataByPurchase: Item[],
+  dataByItem: {[key: string]: number },
+  expMin: null | number;
+  expMax: null | number;
+  expiredDataOnly: boolean;
+  filteredNames: string[];
+  filteredStores: string[];
+  filteredTypes: string[];
+  groupDataBy: "day" | "purchase" | "item";
+  pageOffset: number;
+  pageSize: number;
+  purchaseMin: null | number;
+  purchaseMax: null | number;
+  qtyMin: null | number;
+  qtyMax: null | number;
+  tableRowCount: number;
+  values: {
+    types: string[];
+    names: string[];
+    stores: string[];
+    purchase: {
+      min: number;
+      max: number;
+    };
+    exp: {
+      min: number;
+      max: number;
+    };
+    qty: {
+      min: null | number;
+      max: null | number;
+    };
+  };
+};
 
 const getDefaultState = (filterData: (item: Item) => boolean): IState => {
   // Sorts data by date, ascending
@@ -320,18 +430,18 @@ const getDefaultState = (filterData: (item: Item) => boolean): IState => {
         new Date(a.purchaseDate).valueOf() - new Date(b.purchaseDate).valueOf()
       );
 
-    const expMax = Math.max(...data.map((v: Item) => new Date(v.expirationDate).valueOf()));
-    const expMin = Math.min(...data.map((v: Item) => new Date(v.expirationDate).valueOf()));
+    const expMax      = Math.max(...data.map((v: Item) => new Date(v.expirationDate).valueOf()));
+    const expMin      = Math.min(...data.map((v: Item) => new Date(v.expirationDate).valueOf()));
     const purchaseMax = Math.max(...data.map((v: Item) => new Date(v.purchaseDate).valueOf()));
     const purchaseMin = Math.min(...data.map((v: Item) => new Date(v.purchaseDate).valueOf()));
-    const qtyMax = Math.max(...data.map((v: Item) => v.quantity));
-    const qtyMin = Math.min(...data.map((v: Item) => v.quantity));
 
     return {
       boughtAfterExpiration: dataByDate.filter((v: Item) => 
         0 < (new Date(v.purchaseDate).valueOf()) - new Date(v.expirationDate).valueOf()),
       dataByDate,
-      dataByDateAndItemName: groupDataByDay(dataByDate, 0, Infinity, filterData),
+      dataByDateAndItemName: groupDataByDay(dataByDate),
+      dataByItem: dataGroupedByItem(data),
+      dataByPurchase: dataByDate,
       expMax,
       expMin,
       expiredDataOnly: false,
@@ -340,27 +450,155 @@ const getDefaultState = (filterData: (item: Item) => boolean): IState => {
       filteredTypes: [],
       groupDataBy: "purchase",
       pageOffset: 0,
-      pageSize: Infinity,
+      pageSize: 50,
       purchaseMax,
       purchaseMin,
-      qtyMax,
-      qtyMin,
+      qtyMax: null,
+      qtyMin: null,
+      tableRowCount: dataByDate.length,
       values: {
         exp: {
           max: expMax,
           min: expMin,
         },
-        names: pluckSet('name'),
+        names: pluck('name'),
         purchase: {
           max: purchaseMax,
           min: purchaseMin,
         },
         qty: {
-          max: qtyMax,
-          min: qtyMin,
+          max: null,
+          min: null,
         },
-        stores: pluckSet('store'),
-        types: pluckSet('type'),
+        stores: pluck('store'),
+        types: pluck('type'),
       },
     };
+};
+
+// If value is present in 'filteredVals', it will be filtered out
+function filterByVal (val: string, filteredVals: string[]) {
+  return filteredVals.indexOf(val) === -1;
+};
+
+function filterByMinMax (val: number, min: number | null | undefined, max: number | null | undefined) {
+  return !(                       // Filter out if val
+    (val < (min || -Infinity)) || // is smaller than min or
+    (val > (max || Infinity))     // is greater than max
+  );
+};
+
+// Similar to Underscore.JS's pluck(). Takes a 'key', and returns array of all values contained on that key in the array of refrigerator items
+// Used to generate filtering options
+function pluck (key: string) {
+  return data
+    .reduce((acc: string[], v: Item) => {
+      if (acc.indexOf(v[key]) === -1) {
+        acc.push(v[key]);
+      }
+
+      return acc;
+    }, [] as string[])
+    .sort();
+}
+
+function getPageData (items: Item[], filter: (item: Item) => boolean) {
+  const tablePageData = [];
+  let i = 0;
+
+  while ((i <= items.length) && items[i]) {
+    if (filter(items[i])) {
+      tablePageData.push(items[i]);
+    }
+
+    i++;
+  }
+
+  return tablePageData;
+}
+
+export function getISODateString (date: Date) { return date.toISOString().slice(0, 10); }
+
+
+export function groupDataByDay (dataByDate: Item[], filter?: (item: Item, ignoreQty?: true) => boolean, qtyFilter?: (qty: number) => boolean) {
+  const dataByDay = dataByDate.reduce((acc: { [key: string]: { [key: string]: number } }, item: Item) => {
+    if (filter !== undefined && !filter(item, true)) {
+      return acc;
+    }
+
+    const purchaseDate = getISODateString(new Date(item.purchaseDate));
+
+    if (!(purchaseDate in acc)) {
+      acc[purchaseDate] = {};
+    }
+
+    if (!(item.name in acc[purchaseDate])) {
+      acc[purchaseDate][item.name] = 0;
+    }
+
+    acc[purchaseDate][item.name] += item.quantity;
+
+    return acc;
+  }, {});
+
+  return(
+    qtyFilter
+      ? Object.keys(dataByDay).reduce((acc, key) => {
+          if (!qtyFilter) {
+            return acc;
+          }
+
+          acc[key] = dataByDay[key];
+
+          return acc;
+        }, {})
+      : dataByDay
+  );
+}
+
+function dataGroupedByItem (dataByItem: Item[], filter?: (item: Item, ignoreQty?: true) => boolean, qtyFilter?: (qty: number) => boolean) {
+  const itemData = dataByItem.reduce((acc: { [key: string]: number }, item: Item) => {
+    if (filter !== undefined && !filter(item, true)) {
+      return acc;
+    }
+
+    if (!acc[item.name]) {
+      acc[item.name] = 0;
+    }
+
+    acc[item.name] += item.quantity;
+
+    return acc;
+  }, {});
+
+  return(
+    qtyFilter !== undefined
+      ? Object.keys(itemData).reduce((acc, key) => {
+          if (!qtyFilter(itemData[key])) {
+            return acc;
+          }
+
+          acc[key] = itemData[key];
+
+          return acc;
+        }, {})
+      : itemData
+  );
+}
+
+export interface IFilters {
+  groupDataBy: "purchase" | "day" | "item";
+  expiredDataOnly: boolean;
+  filteredNames: string[];
+  filteredTypes: string[];
+  filteredStores: string[];
+  tableRowCount: number;
+  pageSize: number;
+  pageOffset: number;
+  purchaseMin: null | number;
+  purchaseMax: null | number;
+  expMin: null | number;
+  expMax: null | number;
+  qtyMin: null | number;
+  qtyMax: null | number;
 };
