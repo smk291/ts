@@ -54,7 +54,7 @@ export const GroupAndSelectData = (props: ISetDataAndGroupingProps) => {
           id="byItem"
           name="tableChoices"
           type="radio"
-          value="true"
+          value="true" 
         />
         Group purchases by Item
       </label>

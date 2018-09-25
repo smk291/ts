@@ -23,8 +23,7 @@ html {
 .filterLabel,
 .exclude,
 .numberInputLabel,
-.datepickerLabel,
-.paginationInput {
+.datepickerLabel {
   /* width: 100%; */
   height: 30px;
   padding: 0 10px;
@@ -67,22 +66,15 @@ html {
 
 .filters {
   width: 400px;
-  height: 100vh;
 }
 
 .filterContainer {
   width: 100%;
-}
 
-
-.filterSections {
-  height: calc(100vh - 30px);
-  overflow: auto;
 }
 
 .excludeContainer {
-  background-color: #343d46;
-  border-left: 10px solid #fcaa67;
+  background-color: #6A757F;
   display: flex;
   flex-wrap: wrap;
   margin: 0 auto;
@@ -130,20 +122,20 @@ html {
 } */
 
 .tableContainer {
-  height: calc(100vh - 50px);
+  height: 100vh;
 }
 
 .table {
   font-size: 12px;
   border-collapse: collapse;
-  height: calc(100% - 50px);
+  height: 100%;
   background-color: #343d46;
 }
 
 .table > tbody {
   display: block;
   overflow: auto;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 30px);
 }
 
 .notFilteredout {
@@ -221,7 +213,7 @@ html {
 }
 
 .backgroundLight {
-  background-color: #6A757F;
+  background-color: #6A757F
 }
 
 .numberInputContainer,
@@ -282,45 +274,6 @@ html {
 
 .rowGrouped > .cell {
   padding: 5px 10px;
-}
-
-.paginationContainer {
-  display:flex;
-  justify-content: space-between;
-  width: 100%;
-  height: 50px;
-  align-items: center;
-}
-
-.paginationInputFlex {
-  display: flex;
-  align-items: center;
-}
-
-.pageIncrementer {
-  cursor: pointer;
-  font-size: 30px;
-}
-
-.pageInput {
-  width: 40px;
-}
-
-.backgroundDarkest {
-  background-color: #343d46;
-}
-
-.resetFilters {
-  padding: 0 10px;
-  cursor: pointer;
-}
-
-.resetFilters:hover {
-  background-color: #6A757F;
-}
-
-.pageChangeContainer {
-  display: flex;
 }
 /* 
 @keyframes App-logo-spin {

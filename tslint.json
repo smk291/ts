@@ -10,7 +10,6 @@
   "rules": {
     "no-console": false,
     "max-classes-per-file": [false],
-    "member-access":[true],
     "no-var-requires": false
   }
 }
