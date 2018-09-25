@@ -12,25 +12,33 @@ interface INumberInputProps {
   onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
   title?: string;
   value: number | undefined | null;
-};
+}
 
 interface INumberInputState {
   inputVal: string | undefined;
 }
 
-export class NumberInput extends React.Component <INumberInputProps, INumberInputState> {
+export class NumberInput extends React.Component<
+  INumberInputProps,
+  INumberInputState
+> {
   constructor(props: INumberInputProps) {
     super(props);
 
     this.state = {
-      inputVal: this.props.defaultVal !== undefined && this.props.defaultVal !== null && this.props.defaultVal.toString() || '',
+      inputVal:
+        (this.props.defaultVal !== undefined &&
+          this.props.defaultVal !== null &&
+          this.props.defaultVal.toString()) ||
+        '',
     };
   }
 
   public componentWillReceiveProps(nextProps: INumberInputProps) {
     if (this.props.value !== nextProps.value) {
       this.setState({
-        inputVal: nextProps.value && nextProps.value.toString() || '', });
+        inputVal: (nextProps.value && nextProps.value.toString()) || '',
+      });
     }
   }
 
@@ -41,19 +49,21 @@ export class NumberInput extends React.Component <INumberInputProps, INumberInpu
     const val = e.currentTarget.value;
 
     this.setState({ inputVal: val }, () => this.props.onChange(e));
-  }
+  };
 
   public render() {
-    const { id, label, } = this.props;
+    const { id, label } = this.props;
     const input = [
-      this.props.label 
-        ? <label key={0} htmlFor={id} className="numberInputLabel">
-            {label}
-          </label>
-        : null,
-      <input key={1} className={this.props.inputClassName || "numberInput"}
+      this.props.label ? (
+        <label key={0} htmlFor={id} className="numberInputLabel">
+          {label}
+        </label>
+      ) : null,
+      <input
+        key={1}
+        className={this.props.inputClassName || 'numberInput'}
         {...{
-          autoComplete: "new-password",
+          autoComplete: 'new-password',
           id,
           name,
           onChange: this.handleChange,
@@ -65,16 +75,16 @@ export class NumberInput extends React.Component <INumberInputProps, INumberInpu
 
     if (this.props.onSubmit !== undefined) {
       return (
-        <form className={this.props.formClassName} title={this.props.formTitle} onSubmit={this.props.onSubmit}>
+        <form
+          className={this.props.formClassName}
+          title={this.props.formTitle}
+          onSubmit={this.props.onSubmit}
+        >
           {input}
         </form>
       );
     }
 
-    return(
-      <div className="numberInputContainer">
-        {input}
-      </div>
-    );
+    return <div className="numberInputContainer">{input}</div>;
   }
 }

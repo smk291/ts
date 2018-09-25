@@ -1,10 +1,9 @@
 import * as React from 'react';
 
-
 interface IFilterProps {
-  label: string,
+  label: string;
   defaultOpen?: boolean;
-};
+}
 
 interface IFilterState {
   expand: boolean;
@@ -16,24 +15,21 @@ export class Collapsible extends React.Component<IFilterProps, IFilterState> {
 
     this.state = {
       expand: this.props.defaultOpen || false,
-    }
+    };
 
     this.handleExpand = this.handleExpand.bind(this);
   }
 
-  public handleExpand = () => this.setState({expand: !this.state.expand})
+  public handleExpand = () => this.setState({ expand: !this.state.expand });
 
   public render() {
-    return(
+    return (
       <div className="filterContainer">
-        <div
-          className="filterLabel"
-          onClick={this.handleExpand}
-        >
+        <div className="filterLabel" onClick={this.handleExpand}>
           <span>{this.props.label}</span>
-          <span>{this.state.expand ? "▼" : "▶"}</span>
+          <span>{this.state.expand ? '▼' : '▶'}</span>
         </div>
-        {this.state.expand && this.props.children || null}
+        {(this.state.expand && this.props.children) || null}
       </div>
     );
   }

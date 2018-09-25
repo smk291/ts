@@ -1,10 +1,10 @@
 import * as React from 'react';
 
 interface IExcludeProps {
-  values: string[],
-  exclude: string[]
+  values: string[];
+  exclude: string[];
   onClick: (e: string) => void;
-};
+}
 
 export class Filter extends React.Component<IExcludeProps, {}> {
   constructor(props: IExcludeProps) {
@@ -17,29 +17,29 @@ export class Filter extends React.Component<IExcludeProps, {}> {
     e.stopPropagation();
 
     this.props.onClick(e.currentTarget.title);
-  }
+  };
 
   public render() {
-    return(
+    return (
       <div className="excludeContainer">
         {this.props.values.map((val, i) => {
-          const id = val + "-" + i;
+          const id = val + '-' + i;
 
-          return([
+          return [
             <div
-              className={
-                [
-                  "exclude",
-                  this.props.exclude.indexOf(val) === -1 ? "notFilteredOut" : "filteredOut"
-                ].join(" ")
-              }
+              className={[
+                'exclude',
+                this.props.exclude.indexOf(val) === -1
+                  ? 'notFilteredOut'
+                  : 'filteredOut',
+              ].join(' ')}
               onClick={this.handleExclude}
               key={id}
               title={val}
             >
               <div className="excludeText">{val}</div>
-            </div>
-          ]);
+            </div>,
+          ];
         })}
       </div>
     );

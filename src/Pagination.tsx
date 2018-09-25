@@ -3,17 +3,23 @@ import './App.css';
 import { NumberInput } from './NumberInput';
 
 interface IProps {
-  changePage: (e: React.MouseEvent<HTMLDivElement | HTMLInputElement> | React.FormEvent<HTMLFormElement>) => void;
-  changePageSize: (e: React.FormEvent<HTMLFormElement | HTMLInputElement>) => void;
+  changePage: (
+    e:
+      | React.MouseEvent<HTMLDivElement | HTMLInputElement>
+      | React.FormEvent<HTMLFormElement>,
+  ) => void;
+  changePageSize: (
+    e: React.FormEvent<HTMLFormElement | HTMLInputElement>,
+  ) => void;
   pageOffset: number;
   pageSize: number;
   tableRowCount: number;
-};
+}
 
 interface IState {
   pageNumber: number;
   pageSize: number;
-};
+}
 
 export class Pagination extends React.Component<IProps, IState> {
   constructor(props: IProps) {
@@ -33,7 +39,7 @@ export class Pagination extends React.Component<IProps, IState> {
     }
 
     if (
-      this.props.pageOffset !== nextProps.pageOffset || 
+      this.props.pageOffset !== nextProps.pageOffset ||
       this.props.pageSize !== nextProps.pageSize
     ) {
       this.setState({
@@ -44,12 +50,24 @@ export class Pagination extends React.Component<IProps, IState> {
   }
 
   public render() {
-    return(
-      <div className={["paginationContainer", "backgroundDarkest", "paginationInput"].join(" ")}>
-        <div onClick={this.props.changePage} title="prev" className="pageIncrementer">
+    return (
+      <div
+        className={[
+          'paginationContainer',
+          'backgroundDarkest',
+          'paginationInput',
+        ].join(' ')}
+      >
+        <div
+          onClick={this.props.changePage}
+          title="prev"
+          className="pageIncrementer"
+        >
           «
         </div>
-        <div className={["pageChangeContainer", "paginationInputFlex"].join(" ")}>
+        <div
+          className={['pageChangeContainer', 'paginationInputFlex'].join(' ')}
+        >
           <span>Page&nbsp;</span>
           <NumberInput
             defaultVal={this.state.pageNumber}
@@ -60,16 +78,25 @@ export class Pagination extends React.Component<IProps, IState> {
             title="setPage"
             onChange={this.pageChange}
             onSubmit={this.props.changePage}
-            formTitle={(this.state.pageNumber && this.state.pageNumber.toString()) || undefined}
+            formTitle={
+              (this.state.pageNumber && this.state.pageNumber.toString()) ||
+              undefined
+            }
           />
-          <span>&nbsp;/&nbsp;{Math.ceil(this.props.tableRowCount / this.props.pageSize)}</span>
+          <span>
+            &nbsp;/&nbsp;{Math.ceil(
+              this.props.tableRowCount / this.props.pageSize,
+            )}
+          </span>
         </div>
         <div className="paginationInputFlex">
           <span>Items per page&nbsp;</span>
           <NumberInput
             defaultVal={this.state.pageSize}
-            onSubmit={this.props.changePageSize} 
-            formTitle={this.state.pageSize && this.state.pageSize.toString() || "null"}
+            onSubmit={this.props.changePageSize}
+            formTitle={
+              (this.state.pageSize && this.state.pageSize.toString()) || 'null'
+            }
             inputClassName="pageInput"
             value={this.state.pageSize}
             id="changePageSize"
@@ -77,30 +104,34 @@ export class Pagination extends React.Component<IProps, IState> {
             onChange={this.pageSizeChange}
           />
         </div>
-        <div onClick={this.props.changePage} title="next" className="pageIncrementer">
+        <div
+          onClick={this.props.changePage}
+          title="next"
+          className="pageIncrementer"
+        >
           »
         </div>
       </div>
-    )
-  };
+    );
+  }
 
   private getPageNumber = (props: IProps) => {
-    return (props.pageOffset / props.pageSize) + 1
-  }
+    return props.pageOffset / props.pageSize + 1;
+  };
 
   private pageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
-      pageNumber: parseInt(e.target.value, 10) || 0, 
+      pageNumber: parseInt(e.target.value, 10) || 0,
     });
-  }
+  };
 
   private pageSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const numVal = parseInt(e.target.value, 10) || NaN;
 
     if (!isNaN(numVal) && numVal !== 0) {
       this.setState({
-        pageSize: numVal, 
+        pageSize: numVal,
       });
     }
-  }
+  };
 }
