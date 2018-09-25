@@ -12,6 +12,7 @@
     "@types/react-dom": "^16.0.7",
     "typescript": "^3.0.3"
   },
+ "typings": "./index.d.ts",
   "scripts": {
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
