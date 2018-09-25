@@ -1,50 +1,81 @@
 import * as React from 'react';
 import { Item } from './App';
 
-interface ITable {
-  groupDataBy: "purchase" | "day" | "item";
-  expiredDataOnly: boolean;
-  boughtAfterExpiration: Item[];
-  dataByDate: Item[];
-  pageSize: number;
-  pageOffset: number;
-  filterItem: (item: Item) => boolean;
-}
-
-export const Table = (props: ITable) => {
-  const dataToRender = 
-      props.expiredDataOnly ? props.boughtAfterExpiration : props.dataByDate;
-
-  switch(props.groupDataBy) {
+export const Table = (props: ITableProps) => {
+  switch (props.groupDataBy) {
     case 'purchase':
       return (
-        <TableByPurchase 
-          {...{
-            columns: Object.keys(props.dataByDate[0]),
-            tableData: getPageData(dataToRender, props.pageSize, props.pageOffset, props.filterItem),
-          }}
-        />
+        props.dataByPurchase && (
+          <TableByPurchase
+            {...{
+              columns:
+                (props.dataByPurchase[0] &&
+                  Object.keys(props.dataByPurchase[0])) ||
+                [],
+              tableData: props.dataByPurchase.slice(
+                props.pageOffset,
+                props.pageOffset + props.pageSize - 1,
+              ),
+            }}
+          />
+        )
       );
     case 'day':
-      return(
-        <TableByDate
-          {...{
-            columns: ['Date', 'Purchases'],
-            tableData: groupDataByDay(dataToRender, props.pageSize, props.pageOffset, props.filterItem),
-          }}
-        />
+      const tableDataByDay =
+        props.dataByDateAndItemName &&
+        Object.keys(props.dataByDateAndItemName)
+          .slice(props.pageOffset, props.pageOffset + props.pageSize - 1)
+          .reduce((acc, key) => {
+            acc[key] =
+              (props.dataByDateAndItemName &&
+                props.dataByDateAndItemName[key]) ||
+              {};
+
+            return acc;
+          }, {});
+
+      return (
+        tableDataByDay && (
+          <TableByDate
+            {...{
+              columns: ['Date', 'Purchases'],
+              tableData: tableDataByDay,
+            }}
+          />
+        )
       );
     case 'item':
-      return(
-        <TableByItem 
-          {...{
-            columns: ['Name', 'Quantity'],
-            tableData: dataGroupedByItem(dataToRender, props.pageSize, props.pageOffset, props.filterItem),
-          }}
-        />
+      const tableDataByItem =
+        props.dataByItem &&
+        Object.keys(props.dataByItem)
+          .slice(props.pageOffset, props.pageOffset + props.pageSize - 1)
+          .reduce((acc, key) => {
+            acc[key] = (props.dataByItem && props.dataByItem[key]) || {};
+
+            return acc;
+          }, {});
+      return (
+        tableDataByItem && (
+          <TableByItem
+            {...{
+              columns: ['Name', 'Quantity'],
+              tableData: tableDataByItem,
+            }}
+          />
+        )
       );
   }
 };
+
+interface ITableProps {
+  boughtAfterExpiration: Item[];
+  dataByPurchase: Item[];
+  dataByItem: { [key: string]: number };
+  dataByDateAndItemName: { [key: string]: { [key: string]: number } };
+  groupDataBy: 'day' | 'item' | 'purchase';
+  pageSize: number;
+  pageOffset: number;
+}
 
 interface ITableByPurchase {
   columns: string[];
@@ -60,16 +91,15 @@ const TableByPurchase = (props: ITableByPurchase) => {
             {props.columns.map((key, i) => <th key={i}>{keyToLabel[key]}</th>)}
           </tr>
         </thead>
-        <tbody>
-          {props.tableData
-            .map((item: Item, i: number) => 
-              <tr key={i} className={["row", i % 2 === 0 ? "rowEven" : ""].join(" ")}>
-                {props.columns.map((key, j) => 
-                  cell(key, j, item)
-                )}
-              </tr>
-            )
-          }
+        <tbody className="tableTbody">
+          {props.tableData.map((item: Item, i: number) => (
+            <tr
+              key={i}
+              className={['row', i % 2 === 0 ? 'rowEven' : ''].join(' ')}
+            >
+              {props.columns.map((key, j) => cell(key, j, item))}
+            </tr>
+          ))}
         </tbody>
       </table>
     </section>
@@ -90,33 +120,33 @@ const TableByDate = (props: ITableByDate) => {
             {props.columns.map((key, i) => <th key={i}>{key}</th>)}
           </tr>
         </thead>
-        <tbody>
-          {Object.keys(props.tableData)
-            .map((date: string, i: number) => {
-              const currentDateItems = props.tableData[date];
+        <tbody className="tableTbody">
+          {Object.keys(props.tableData).map((date: string, i: number) => {
+            const currentDateItems = props.tableData[date];
 
-              return(
-                Object.keys(currentDateItems)
-                  .sort()
-                  .map((item: string, j: number) => {
-
-                    return(
-                      <tr key={j} className={["row", "rowGrouped"].join(" ")}>
-                        <td className={["cell", j === 0 && "backgroundDark" || "backgroundLight"].join(" ")}>
-                          {j === 0 && date}
-                        </td>
-                        <td className={["cell", "darkBackground"].join(" ")}>
-                          {item}
-                        </td>
-                        <td className={["cell", "darkBackground"].join(" ")}>
-                          {currentDateItems[item]}
-                        </td>
-                      </tr>
-                    );
-                  })
-              );
-            })
-          }
+            return Object.keys(currentDateItems)
+              .sort()
+              .map((item: string, j: number) => {
+                return (
+                  <tr key={j} className={['row', 'rowGrouped'].join(' ')}>
+                    <td
+                      className={[
+                        'cell',
+                        (j === 0 && 'backgroundDark') || 'backgroundLight',
+                      ].join(' ')}
+                    >
+                      {j === 0 && date}
+                    </td>
+                    <td className={['cell', 'darkBackground'].join(' ')}>
+                      {item}
+                    </td>
+                    <td className={['cell', 'darkBackground'].join(' ')}>
+                      {currentDateItems[item]}
+                    </td>
+                  </tr>
+                );
+              });
+          })}
         </tbody>
       </table>
     </section>
@@ -138,7 +168,7 @@ const TableByItem = (props: ITableByItem) => {
             <th>Quantity</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="tableTbody">
           {Object.keys(props.tableData)
             .sort()
             .map((item: string, i: number) => {
@@ -157,74 +187,6 @@ const TableByItem = (props: ITableByItem) => {
     </section>
   );
 };
-
-function getPageData (rawData: Item[], perPage: number, startFrom: number, doDisplayRow: (item: Item) => boolean) {
-  const slicedData = rawData.slice(startFrom);
-  const tablePageData = [];
-  let i = 0;
-
-
-  while ((tablePageData.length <= perPage) && slicedData[i]) {
-    if (doDisplayRow(slicedData[i])) {
-      tablePageData.push(slicedData[i]);
-    }
-
-    i++;
-  }
-
-  return tablePageData;
-}
-
-export function getISODateString (date: Date) { return date.toISOString().slice(0, 10); }
-
-
-export function groupDataByDay (dataSortedByTimestamp: Item[], perPage: number, startFrom: number, doDisplayRow: (item: Item) => boolean) {
-  const slicedData = dataSortedByTimestamp.slice(startFrom);
-  const tablePageData = {};
-  let i = 0;
-
-  while (Object.keys(tablePageData).length <= perPage && slicedData[i]) {
-    const item = slicedData[i];
-    const purchaseDate = getISODateString(new Date(item.purchaseDate));
-
-    if (!(purchaseDate in tablePageData)) {
-      tablePageData[purchaseDate] = {};
-    }
-
-    const dataForPurchaseDate = tablePageData[purchaseDate]
-
-    if (!(item.name in dataForPurchaseDate)) {
-      dataForPurchaseDate[item.name] = 0;
-    }
-
-    dataForPurchaseDate[item.name] += item.quantity;
-
-
-    i++;
-  }
-
-  return tablePageData;
-}
-
-function dataGroupedByItem (dataSortedByTimestamp: Item[], perPage: number, startFrom: number, doDisplayRow: (item: Item) => boolean) {
-  const slicedData = dataSortedByTimestamp.slice(startFrom);
-  const tablePageData = {};
-  let i = 0;
-
-  while (Object.keys(tablePageData).length <= perPage && slicedData[i]) {
-    const item = slicedData[i];
-
-    if (!tablePageData[item.name]) {
-      tablePageData[item.name] = 0;
-    }
-
-    tablePageData[item.name] += item.quantity;
-
-    i++;
-  }
-
-  return tablePageData; 
-}
 
 const cell = (key: string, j: number, item: Item) => {
   if (['purchaseDate', 'expirationDate'].indexOf(key) !== -1) {

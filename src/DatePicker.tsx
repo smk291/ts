@@ -1,6 +1,6 @@
 import * as React from 'react';
+import { getISODateString } from './App';
 import './App.css';
-import { getISODateString } from './Table';
 
 interface IDatePickerProps {
   id: string;
@@ -32,15 +32,6 @@ export class DatePicker extends React.Component<
     };
   }
 
-  public handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.currentTarget.value;
-
-    this.setState({inputVal: val}, () => {
-      this.props.testValidDate(val, this.props.onValidDate)
-    });
-
-  }
-
   public render() {
     const { id, label, min, max, name } = this.props;
 
@@ -64,4 +55,12 @@ export class DatePicker extends React.Component<
       </div>
     );
   }
+
+  private handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.currentTarget.value;
+
+    this.setState({ inputVal: val }, () => {
+      this.props.testValidDate(val, this.props.onValidDate);
+    });
+  };
 }

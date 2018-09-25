@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 interface ISetDataAndGroupingProps {
+  changeDataset: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   expiredDataOnly: boolean;
   groupDataBy: 'purchase' | 'day' | 'item';
   setDataGrouping: (e: React.MouseEvent<HTMLLabelElement>) => void;
@@ -10,6 +11,26 @@ interface ISetDataAndGroupingProps {
 export const GroupAndSelectData = (props: ISetDataAndGroupingProps) => {
   return (
     <div className="formContainer">
+      <label
+        htmlFor="chooseData"
+        className={['filterLabel', 'dataSelection'].join(' ')}
+        onChange={props.setDataGrouping}
+        title="purchase"
+      >
+        <select
+          className="dataSelectionInput"
+          id="chooseData"
+          name="chooseData"
+          onChange={props.changeDataset}
+        >
+          {[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ].map((v, i) => {
+            return(
+              <option key={i} value={i}>{i}</option>
+            );
+          })}
+        </select>
+        Choose a dataset&nbsp;
+      </label>
       <label
         htmlFor="byPurchase"
         className={['filterLabel', 'dataSelection'].join(' ')}
@@ -54,7 +75,7 @@ export const GroupAndSelectData = (props: ISetDataAndGroupingProps) => {
           id="byItem"
           name="tableChoices"
           type="radio"
-          value="true" 
+          value="true"
         />
         Group purchases by Item
       </label>
@@ -65,11 +86,12 @@ export const GroupAndSelectData = (props: ISetDataAndGroupingProps) => {
         onChange={props.toggleExpiredDataOnly}
       >
         <input
-          className="dataSelectionInput"
+          className={["dataSelectionInput", "expiredCheckbox"].join(" ")}
           checked={props.expiredDataOnly}
           id="expiredOnly"
           type="checkbox"
           value="true"
+          style={{height: "unset", lineHeight: "14px"}}
         />
         Show only items purchased after expirationDate
       </label>

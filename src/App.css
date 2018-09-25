@@ -3,6 +3,7 @@
 :before {
   box-sizing: border-box;
 }
+
 body,
 html {
   margin: 0;
@@ -23,7 +24,8 @@ html {
 .filterLabel,
 .exclude,
 .numberInputLabel,
-.datepickerLabel {
+.datepickerLabel,
+.paginationInput {
   /* width: 100%; */
   height: 30px;
   padding: 0 10px;
@@ -66,15 +68,22 @@ html {
 
 .filters {
   width: 400px;
+  height: 100vh;
 }
 
 .filterContainer {
   width: 100%;
+}
 
+
+.filterSections {
+  height: calc(100vh - 30px);
+  overflow: auto;
 }
 
 .excludeContainer {
-  background-color: #6A757F;
+  background-color: #343d46;
+  border-left: 10px solid #fcaa67;
   display: flex;
   flex-wrap: wrap;
   margin: 0 auto;
@@ -94,48 +103,22 @@ html {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-/* #iframe {
-  position: absolute;
-  top: 30px;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: -ms-calc(100% - 30px);
-  height: -o-calc(100% - 30px);
-  height: calc(100% - 30px);
-  border: 0;
-}
-#errors {
-  width: 100%;
-  margin: 0;
-  padding: 10px;
-  font-family: monospace;
-  font-size: 14px;
-  line-height: 1.4;
-  color: #eff1f5;
-  background: #bf616a;
-  overflow: auto;
-}
-#okness {
-  font-weight: 700;
-} */
 
 .tableContainer {
-  height: 100vh;
+  height: calc(100vh - 50px);
 }
 
 .table {
   font-size: 12px;
   border-collapse: collapse;
-  height: 100%;
+  height: calc(100% - 50px);
   background-color: #343d46;
 }
 
 .table > tbody {
   display: block;
   overflow: auto;
-  height: calc(100vh - 30px);
+  height: calc(100vh - 80px);
 }
 
 .notFilteredout {
@@ -213,7 +196,7 @@ html {
 }
 
 .backgroundLight {
-  background-color: #6A757F
+  background-color: #6A757F;
 }
 
 .numberInputContainer,
@@ -275,12 +258,47 @@ html {
 .rowGrouped > .cell {
   padding: 5px 10px;
 }
-/* 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-} */
+
+.paginationContainer {
+  display:flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 50px;
+  align-items: center;
+}
+
+.paginationInputFlex {
+  display: flex;
+  align-items: center;
+}
+
+.pageIncrementer {
+  cursor: pointer;
+  font-size: 30px;
+}
+
+.pageInput {
+  width: 40px;
+}
+
+.backgroundDarkest {
+  background-color: #343d46;
+}
+
+.resetFilters {
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.resetFilters:hover {
+  background-color: #6A757F;
+}
+
+.pageChangeContainer {
+  display: flex;
+}
+
+.expiredCheckbox {
+  line-height: unset;
+  height: unset;
+}
