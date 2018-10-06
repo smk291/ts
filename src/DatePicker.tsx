@@ -2,7 +2,7 @@ import * as React from 'react';
 import { getISODateString } from './App';
 import './App.css';
 
-interface IDatePickerProps {
+export interface IDatePickerProps {
   id: string;
   label: string;
   max: number;

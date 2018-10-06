@@ -1,12 +1,12 @@
 import * as React from 'react';
 import './App.css';
-import { DatePicker } from './DatePicker';
+import { DatePicker, IDatePickerProps as DatePickerProps } from './DatePicker';
 import { Collapsible } from './Filter';
-import { Filter } from './FilterInput';
-import { GroupAndSelectData } from './GroupAndSelectData';
-import { NumberInput } from './NumberInput';
-import { Pagination } from './Pagination';
-import { Table } from './Table';
+import { Filter, IExcludeProps as FilterProps } from './FilterInput';
+import { GroupAndSelectData, ISetDataAndGroupingProps as GroupingProps } from './GroupAndSelectData';
+import { INumberInputProps as NumberInputProps, NumberInput } from './NumberInput';
+import { IProps as PaginationProps, Pagination } from './Pagination';
+import { ITableProps as TableProps, Table } from './Table';
 
 const data0 = require('./data/data-0.json');
 const data1 = require('./data/data-1.json');
@@ -21,13 +21,66 @@ const data9 = require('./data/data-9.json');
 
 const datasets = [ data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, ] as Item[][];
 
+
+
 class App extends React.Component<{}, IState> {
+  // Comments needed
+  public changeDataset:         (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  public changePage:            (e: React.MouseEvent<HTMLDivElement | HTMLInputElement> | React.FormEvent<HTMLFormElement>,) => void;
+  public filterByQty:           (qty: number) => boolean;
+  public filterInputs:          () => Array<{ defaultOpen?: boolean; form: JSX.Element; label: string; }>;
+  public filterItem:            (fridgeItem: Item, ignoreQty?: boolean) => boolean;
+  public getDateObjIfValidISO:  (dateStringISO: string | null | undefined, dateChange: (date: Date | null) => void, ) => void;
+  public resetFilters:          () => void;
+  public setDataGrouping:       (e: React.MouseEvent<HTMLLabelElement>) => void;
+  public setExpMax:             (date: Date | null) => void;
+  public setExpMin:             (date: Date | null) => void;
+  public setPageSize:           (e: React.FormEvent<HTMLFormElement>) => void;
+  public setPurchaseMax:        (date: Date) => void;
+  public setPurchaseMin:        (date: Date) => void;
+  public setQtyMax:             (e: React.ChangeEvent<HTMLInputElement>) => void;
+  public setQtyMin:             (e: React.ChangeEvent<HTMLInputElement>) => void;
+  public setTableData:          () => void;
+  public toggleExpiredDataOnly: (e: React.MouseEvent<HTMLLabelElement>) => void;
+  public toggleFilter:          (val: string, exclude: string[]) => string[];
+
+  public groupAndSelectDataProps: () => GroupingProps;
+  public nameFilterProps:         () => FilterProps;
+  public typeFilterProps:         () => FilterProps;
+  public storeFilterProps:        () => FilterProps;
+  public purchaseMinDateProps:    () => DatePickerProps;
+  public purchaseMaxDateProps:    () => DatePickerProps;
+  public expDateMinProps:         () => DatePickerProps;
+  public expDateMaxProps:         () => DatePickerProps
+  public qtyMinProps:             () => NumberInputProps
+  public qtyMaxProps:             () => NumberInputProps;
+  public tableProps:              () => TableProps;
+  public paginationProps:         () => PaginationProps;
+
   constructor(props: {}) {
     super(props);
 
     this.state = getDefaultState(datasets[0], this.filterItem);
 
+    this.changeDataset = this.changeDataset.bind(this);
+    this.changePage = this.changePage.bind(this);
+    this.filterByQty = this.filterByQty.bind(this);
+    this.filterInputs = this.filterInputs.bind(this);
+    this.filterItem = this.filterItem.bind(this);
+    this.getDateObjIfValidISO = this.getDateObjIfValidISO.bind(this);
+    this.resetFilters = this.resetFilters.bind(this);
+    this.setDataGrouping = this.setDataGrouping.bind(this);
+    this.setExpMax = this.setExpMax.bind(this);
+    this.setExpMin = this.setExpMin.bind(this);
+    this.setPageSize = this.setPageSize.bind(this);
+    this.setPurchaseMax = this.setPurchaseMax.bind(this);
+    this.setPurchaseMin = this.setPurchaseMin.bind(this);
+    this.setQtyMax = this.setQtyMax.bind(this);
+    this.setQtyMin = this.setQtyMin.bind(this);
     this.setTableData = this.setTableData.bind(this);
+    this.setTableData = this.setTableData.bind(this);
+    this.toggleExpiredDataOnly = this.toggleExpiredDataOnly.bind(this);
+    this.toggleFilter = this.toggleFilter.bind(this);
   }
 
   public render() {
@@ -63,8 +116,38 @@ class App extends React.Component<{}, IState> {
       </main>
     );
   }
+}
 
-  private filterInputs = () => [
+function setDate(this: App, key: "purchaseMax" | "purchaseMin", date: Date | null, ) {
+  const newState = {[key]: date};
+
+  this.setState({...newState, ...App.prototype.state}, () => this.setTableData);
+}
+
+App.prototype.setPurchaseMax = function (this: App, date: Date | null) {
+  setDate.call(this, 'purchaseMax', date);
+};
+
+App.prototype.setPurchaseMin = function (this: App, date: Date | null) {
+  setDate.call(this, 'purchaseMin', date);
+};
+
+function setExpirationDate (this: App, key: "expMax" | "expMin", date: Date | null) {
+  const newState = { [key]: (date && date.valueOf()) || null };
+
+  this.setState({...newState, ...App.prototype.state}, this.setTableData);
+}
+
+App.prototype.setExpMax = function (this: App, date: Date | null) {
+  setExpirationDate.call(this, 'expMax', date);
+}
+
+App.prototype.setExpMin = function (this: App, date: Date | null) {
+  setExpirationDate.call(this, 'expMin', date);
+}
+
+App.prototype.filterInputs = function(this: App) {
+  return [
     {
       defaultOpen: true,
       form: <GroupAndSelectData {...this.groupAndSelectDataProps()} />,
@@ -110,39 +193,43 @@ class App extends React.Component<{}, IState> {
       label: 'Quantity',
     },
   ];
+}
 
-  private resetFilters = () => {
+App.prototype.resetFilters = function(this: App, ) {
     this.setState(getDefaultState(datasets[0], this.filterItem));
   };
-  private filterItem = (fridgeItem: Item, ignoreQty?: boolean) => {
-    return (
-      filterByVal(fridgeItem.name, this.state.filteredNames) &&
-      filterByVal(fridgeItem.store, this.state.filteredStores) &&
-      filterByVal(fridgeItem.type, this.state.filteredTypes) &&
-      filterByMinMax(
-        new Date(fridgeItem.purchaseDate).valueOf(),
-        this.state.purchaseMin,
-        this.state.purchaseMax,
-      ) &&
-      filterByMinMax(
-        new Date(fridgeItem.expirationDate).valueOf(),
-        this.state.expMin,
-        this.state.expMax,
-      ) &&
-      (ignoreQty
-        ? true
-        : filterByMinMax(
-            fridgeItem.quantity,
-            this.state.qtyMin,
-            this.state.qtyMax,
-          ))
-    );
-  };
-  private filterByQty = (qty: number) => {
-    return filterByMinMax(qty, this.state.qtyMin, this.state.qtyMax);
-  };
-  // Add or remove value from filter
-  private toggleFilter = (val: string, exclude: string[]) => {
+
+App.prototype.filterItem = function(this: App, fridgeItem: Item, ignoreQty?: boolean) {
+  return (
+    filterByVal(fridgeItem.name, this.state.filteredNames) &&
+    filterByVal(fridgeItem.store, this.state.filteredStores) &&
+    filterByVal(fridgeItem.type, this.state.filteredTypes) &&
+    filterByMinMax(
+      new Date(fridgeItem.purchaseDate).valueOf(),
+      this.state.purchaseMin,
+      this.state.purchaseMax,
+    ) &&
+    filterByMinMax(
+      new Date(fridgeItem.expirationDate).valueOf(),
+      this.state.expMin,
+      this.state.expMax,
+    ) &&
+    (ignoreQty
+      ? true
+      : filterByMinMax(
+          fridgeItem.quantity,
+          this.state.qtyMin,
+          this.state.qtyMax,
+        ))
+  );
+};
+
+App.prototype.filterByQty = function(this: App, qty: number) {
+  return filterByMinMax(qty, this.state.qtyMin, this.state.qtyMax);
+};
+
+// Add or remove value from filter
+App.prototype.toggleFilter = function(this: App, val: string, exclude: string[]) {
     if (exclude.indexOf(val) === -1) {
       exclude.push(val);
 
@@ -151,11 +238,12 @@ class App extends React.Component<{}, IState> {
       return exclude.filter(v => v !== val).sort();
     }
   };
-  // If string has valid ISO format, call 'dateChange' with new Date, else call function with null argument;
-  private getDateObjIfValidISO = (
+
+// If string has valid ISO format, call 'dateChange' with new Date, else call function with null argument;
+App.prototype.getDateObjIfValidISO = function(this: App,
     dateStringISO: string | null | undefined,
     dateChange: (date: Date | null) => void,
-  ) => {
+  ) {
     if (!dateStringISO) {
       dateChange(null);
     } else {
@@ -166,179 +254,175 @@ class App extends React.Component<{}, IState> {
       }
     }
   };
-  // Determines whether table will display
-  // 1. purchases ungrouped ('purchase') or
-  // 2. purchases grouped by date and display items purchase and quantities purchased on that date or
-  // 3. Items alphabetically with quantities purchased
-  private changeDataset = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = parseInt(e.target.value, 10);
-    const dataset = !isNaN(val) && datasets[val];
 
-    if (dataset) {
-      this.setState({...getDefaultState(datasets[val], this.filterItem)})
-    }
+
+App.prototype.changeDataset = function(this: App, e: React.ChangeEvent<HTMLSelectElement>) {
+  const val = parseInt(e.target.value, 10);
+  const dataset = !isNaN(val) && datasets[val];
+
+  if (dataset) {
+    this.setState({...getDefaultState(datasets[val], this.filterItem)})
   }
-  private setDataGrouping = (e: React.MouseEvent<HTMLLabelElement>) => {
-    this.setState(
-      { groupDataBy: e.currentTarget.title as 'day' | 'purchase' | 'item' },
-      () => this.setTableData(),
-    );
-  };
-  private toggleExpiredDataOnly = (e: React.MouseEvent<HTMLLabelElement>) => {
-    this.setState({ expiredDataOnly: !this.state.expiredDataOnly }, () =>
-      this.setTableData(),
-    );
-  };
-  private changePage = (
-    e:
-      | React.MouseEvent<HTMLDivElement | HTMLInputElement>
-      | React.FormEvent<HTMLFormElement>,
-  ) => {
-    e.preventDefault();
+}
 
-    const { title } = e.currentTarget;
-    const manualInput = parseInt(title, 10);
+// Determines whether table will display
+// 1. purchases ungrouped ('purchase') or
+// 2. purchases grouped by date and display items purchase and quantities purchased on that date or
+// 3. Items alphabetically with quantities purchased
+App.prototype.setDataGrouping = function(this: App, e: React.MouseEvent<HTMLLabelElement>) {
+  this.setState(
+    { groupDataBy: e.currentTarget.title as 'day' | 'purchase' | 'item' },
+    () => this.setTableData(),
+  );
+};
 
-    if (
-      manualInput &&
-      (manualInput - 1) * this.state.pageSize < this.state.tableRowCount
-    ) {
+App.prototype.toggleExpiredDataOnly = function(this: App, e: React.MouseEvent<HTMLLabelElement>) {
+  this.setState({ expiredDataOnly: !this.state.expiredDataOnly }, () =>
+    this.setTableData(),
+  );
+};
+
+App.prototype.changePage = function(
+  this: App,
+  e: React.MouseEvent<HTMLDivElement | HTMLInputElement> | React.FormEvent<HTMLFormElement>,
+) {
+  e.preventDefault();
+
+  const { title } = e.currentTarget;
+  const manualInput = parseInt(title, 10);
+
+  if (
+    manualInput &&
+    (manualInput - 1) * this.state.pageSize < this.state.tableRowCount
+  ) {
+    this.setState({
+      pageOffset: this.state.pageSize * (manualInput - 1),
+    });
+  } else if (title === 'prev') {
+    if (this.state.pageOffset >= this.state.pageSize) {
       this.setState({
-        pageOffset: this.state.pageSize * (manualInput - 1),
+        pageOffset: this.state.pageOffset - this.state.pageSize,
       });
-    } else if (title === 'prev') {
-      if (this.state.pageOffset >= this.state.pageSize) {
-        this.setState({
-          pageOffset: this.state.pageOffset - this.state.pageSize,
-        });
-      } else {
-        this.setState({
-          pageOffset:
-            (Math.floor(this.state.tableRowCount / this.state.pageSize) - 1) *
-            this.state.pageSize,
-        });
-      }
-    } else if (title === 'next') {
-      const newPageOffset = this.state.pageOffset + this.state.pageSize;
-      const notOnLastPage = newPageOffset < this.state.tableRowCount;
-
-      if (notOnLastPage) {
-        this.setState({
-          pageOffset: newPageOffset,
-        });
-      } else {
-        this.setState({
-          pageOffset: 0,
-        });
-      }
-    }
-  };
-  private setPageSize = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const val = parseInt(e.currentTarget.title, 10);
-
-    if (!isNaN(val)) {
-      const newPageSize = val;
-
+    } else {
       this.setState({
         pageOffset:
-          Math.floor(this.state.pageOffset / newPageSize) * newPageSize,
-        pageSize: newPageSize,
+          (Math.floor(this.state.tableRowCount / this.state.pageSize) - 1) *
+          this.state.pageSize,
       });
     }
-  };
-  // Set min/max filter values
-  private setPurchaseMin = (date: Date | null) =>
-    this.setState({ purchaseMin: (date && date.valueOf()) || null }, () =>
-      this.setTableData(),
-    );
-  private setPurchaseMax = (date: Date | null) =>
-    this.setState({ purchaseMax: (date && date.valueOf()) || null }, () =>
-      this.setTableData(),
-    );
-  private setExpMax = (date: Date | null) =>
-    this.setState({ expMax: (date && date.valueOf()) || null }, () =>
-      this.setTableData(),
-    );
-  private setExpMin = (date: Date | null) =>
-    this.setState({ expMin: (date && date.valueOf()) || null }, () =>
-      this.setTableData(),
-    );
-  private setQtyMin = (e: React.ChangeEvent<HTMLInputElement>) =>
-    this.setState({ qtyMin: parseInt(e.target.value, 10) || null }, () =>
-      this.setTableData(),
-    );
-  private setQtyMax = (e: React.ChangeEvent<HTMLInputElement>) =>
-    this.setState({ qtyMax: parseInt(e.target.value, 10) || null }, () =>
-      this.setTableData(),
-    );
-  // Apply filters to data
-  private setTableData = () => {
-    const dataToRender = this.state.expiredDataOnly
-      ? this.state.boughtAfterExpiration
-      : this.state.dataByDate;
+  } else if (title === 'next') {
+    const newPageOffset = this.state.pageOffset + this.state.pageSize;
+    const notOnLastPage = newPageOffset < this.state.tableRowCount;
 
-    switch (this.state.groupDataBy) {
-      case 'purchase':
-        this.setState(
-          { dataByPurchase: getPageData(dataToRender, this.filterItem) },
-          () =>
-            this.setState({
-              tableRowCount:
-                (this.state.dataByPurchase &&
-                  this.state.dataByPurchase.length) ||
-                0,
-            }),
-        );
-        break;
-      case 'day':
-        this.setState(
-          {
-            dataByDateAndItemName: groupDataByDay(
-              dataToRender,
-              this.filterItem,
-              this.filterByQty,
-            ),
-          },
-          () =>
-            this.setState({
-              tableRowCount:
-                (this.state.dataByDateAndItemName &&
-                  Object.keys(this.state.dataByDateAndItemName).length) ||
-                0,
-            }),
-        );
-        break;
-      case 'item':
-        this.setState(
-          {
-            dataByItem: dataGroupedByItem(
-              dataToRender,
-              this.filterItem,
-              this.filterByQty,
-            ),
-          },
-          () =>
-            this.setState({
-              tableRowCount:
-                (this.state.dataByItem &&
-                  Object.keys(this.state.dataByItem).length) ||
-                0,
-            }),
-        );
-        break;
+    if (notOnLastPage) {
+      this.setState({
+        pageOffset: newPageOffset,
+      });
+    } else {
+      this.setState({
+        pageOffset: 0,
+      });
     }
-  };
-  // All methods below get props for other components
-  private groupAndSelectDataProps = () => ({
+  }
+};
+
+App.prototype.setPageSize = function(this: App, e: React.FormEvent<HTMLFormElement>) {
+  e.preventDefault();
+
+  const val = parseInt(e.currentTarget.title, 10);
+
+  if (!isNaN(val)) {
+    const newPageSize = val;
+
+    this.setState({
+      pageOffset:
+        Math.floor(this.state.pageOffset / newPageSize) * newPageSize,
+      pageSize: newPageSize,
+    });
+  }
+};
+  // Set min/max filter values
+
+App.prototype.setQtyMin = function(this: App, e: React.ChangeEvent<HTMLInputElement>) {
+  this.setState({ qtyMin: parseInt(e.target.value, 10) || null }, () =>
+    this.setTableData(),
+  );
+}
+
+App.prototype.setQtyMax = function(this: App, e: React.ChangeEvent<HTMLInputElement>) {
+  this.setState({ qtyMax: parseInt(e.target.value, 10) || null }, () =>
+    this.setTableData(),
+  );
+}
+
+App.prototype.setTableData = function(this: App, ) {
+  const dataToRender = this.state.expiredDataOnly
+    ? this.state.boughtAfterExpiration
+    : this.state.dataByDate;
+
+  switch (this.state.groupDataBy) {
+    case 'purchase':
+      this.setState(
+        { dataByPurchase: getPageData(dataToRender, this.filterItem) },
+        () =>
+          this.setState({
+            tableRowCount:
+              (this.state.dataByPurchase &&
+                this.state.dataByPurchase.length) ||
+              0,
+          }),
+      );
+      break;
+    case 'day':
+      this.setState(
+        {
+          dataByDateAndItemName: groupDataByDay(
+            dataToRender,
+            this.filterItem,
+            this.filterByQty,
+          ),
+        },
+        () =>
+          this.setState({
+            tableRowCount:
+              (this.state.dataByDateAndItemName &&
+                Object.keys(this.state.dataByDateAndItemName).length) ||
+              0,
+          }),
+      );
+      break;
+    case 'item':
+      this.setState(
+        {
+          dataByItem: dataGroupedByItem(
+            dataToRender,
+            this.filterItem,
+            this.filterByQty,
+          ),
+        },
+        () =>
+          this.setState({
+            tableRowCount:
+              (this.state.dataByItem &&
+                Object.keys(this.state.dataByItem).length) ||
+              0,
+          }),
+      );
+      break;
+  }
+};
+
+App.prototype.groupAndSelectDataProps = function (this: App) {
+  return {
     changeDataset: this.changeDataset,
     expiredDataOnly: this.state.expiredDataOnly,
     groupDataBy: this.state.groupDataBy,
     setDataGrouping: this.setDataGrouping,
     toggleExpiredDataOnly: this.toggleExpiredDataOnly,
-  });
-  private nameFilterProps = () => ({
+  };
+};
+App.prototype.nameFilterProps = function (this: App) {
+  return {
     exclude: this.state.filteredNames,
     key: 'name',
     onClick: (val: string) =>
@@ -347,8 +431,10 @@ class App extends React.Component<{}, IState> {
         () => this.setTableData(),
       ),
     values: this.state.values.names,
-  });
-  private typeFilterProps = () => ({
+  };
+};
+App.prototype.typeFilterProps = function (this: App) {
+  return {
     exclude: this.state.filteredTypes,
     key: 'type',
     onClick: (val: string) =>
@@ -357,8 +443,10 @@ class App extends React.Component<{}, IState> {
         () => this.setTableData(),
       ),
     values: this.state.values.types,
-  });
-  private storeFilterProps = () => ({
+  };
+};
+App.prototype.storeFilterProps = function (this: App) {
+  return {
     exclude: this.state.filteredStores,
     key: 'store',
     onClick: (val: string) =>
@@ -367,8 +455,10 @@ class App extends React.Component<{}, IState> {
         () => this.setTableData(),
       ),
     values: this.state.values.stores,
-  });
-  private purchaseMinDateProps = () => ({
+  };
+};
+App.prototype.purchaseMinDateProps = function (this: App) {
+  return {
     id: 'purchaseDateMin',
     label: 'Purchased on or after',
     max: this.state.values.purchase.max,
@@ -377,8 +467,10 @@ class App extends React.Component<{}, IState> {
     onValidDate: this.setPurchaseMin,
     testValidDate: this.getDateObjIfValidISO,
     value: this.state.purchaseMin || undefined,
-  });
-  private purchaseMaxDateProps = () => ({
+  };
+};
+App.prototype.purchaseMaxDateProps = function (this: App) {
+  return {
     id: 'purchaseDateMax',
     label: 'Purchased on or before',
     max: this.state.values.purchase.max,
@@ -387,8 +479,10 @@ class App extends React.Component<{}, IState> {
     onValidDate: this.setPurchaseMax,
     testValidDate: this.getDateObjIfValidISO,
     value: this.state.purchaseMax || undefined,
-  });
-  private expDateMinProps = () => ({
+  };
+};
+App.prototype.expDateMinProps = function (this: App) {
+  return {
     id: 'expDateMin',
     label: 'Expires on or after',
     max: this.state.values.exp.max,
@@ -397,8 +491,10 @@ class App extends React.Component<{}, IState> {
     onValidDate: this.setExpMin,
     testValidDate: this.getDateObjIfValidISO,
     value: this.state.expMin || undefined,
-  });
-  private expDateMaxProps = () => ({
+  };
+};
+App.prototype.expDateMaxProps = function (this: App) {
+  return {
     id: 'expDateMax',
     label: 'Expires on or before',
     max: this.state.values.exp.max,
@@ -407,86 +503,57 @@ class App extends React.Component<{}, IState> {
     onValidDate: this.setExpMax,
     testValidDate: this.getDateObjIfValidISO,
     value: this.state.expMax || undefined,
-  });
-  private qtyMinProps = () => ({
+  };
+};
+App.prototype.qtyMinProps = function (this: App) {
+  return {
     id: 'quantityMin',
     label: 'Quantity at least',
     onChange: this.setQtyMin,
     value: this.state.values.qty.min,
-  });
-  private qtyMaxProps = () => ({
+  };
+};
+App.prototype.qtyMaxProps = function (this: App) {
+  return {
     id: 'quantityMax',
     label: 'Quantity at most',
     onChange: this.setQtyMax,
     value: this.state.qtyMax || undefined,
-  });
-  private tableProps = () => {
-    const {
-      boughtAfterExpiration,
-      dataByItem,
-      dataByPurchase,
-      dataByDateAndItemName,
-      groupDataBy,
-      pageOffset,
-      pageSize,
-      tableRowCount,
-    } = this.state;
-
-    return {
-      boughtAfterExpiration,
-      dataByDateAndItemName,
-      dataByItem,
-      dataByPurchase,
-      groupDataBy,
-      pageOffset,
-      pageSize,
-      tableRowCount,
-    };
   };
-  private paginationProps = () => ({
+};
+App.prototype.tableProps = function (this: App) {
+  return {
+    boughtAfterExpiration: this.state.boughtAfterExpiration,
+    dataByDateAndItemName: this.state.dataByDateAndItemName,
+    dataByItem: this.state.dataByItem,
+    dataByPurchase: this.state.dataByPurchase,
+    groupDataBy: this.state.groupDataBy,
+    pageOffset: this.state.pageOffset,
+    pageSize: this.state.pageSize,
+    tableRowCount: this.state.tableRowCount,
+  };
+};
+App.prototype.paginationProps = function (this: App) {
+  return {
     changePage: this.changePage,
     changePageSize: this.setPageSize,
+    expMax: this.state.expMax,
+    expMin: this.state.expMin,
+    expiredDataOnly: this.state.expiredDataOnly,
+    filteredNames: this.state.filteredNames,
+    filteredStores: this.state.filteredStores,
+    filteredTypes: this.state.filteredTypes,
+    groupDataBy: this.state.groupDataBy,
     itemCount: this.state.tableRowCount,
     pageOffset: this.state.pageOffset,
     pageSize: this.state.pageSize,
-    ...this.filterProps(),
-  });
-  private filterProps = () => {
-    const {
-      groupDataBy,
-      expiredDataOnly,
-      pageSize,
-      pageOffset,
-      filteredNames,
-      filteredTypes,
-      filteredStores,
-      tableRowCount,
-      purchaseMin,
-      purchaseMax,
-      expMin,
-      expMax,
-      qtyMin,
-      qtyMax,
-    } = this.state;
-
-    return {
-      expMax,
-      expMin,
-      expiredDataOnly,
-      filteredNames,
-      filteredStores,
-      filteredTypes,
-      groupDataBy,
-      pageOffset,
-      pageSize,
-      purchaseMax,
-      purchaseMin,
-      qtyMax,
-      qtyMin,
-      tableRowCount,
-    };
+    purchaseMax: this.state.purchaseMax,
+    purchaseMin: this.state.purchaseMin,
+    qtyMax: this.state.qtyMax,
+    qtyMin: this.state.qtyMin,
+    tableRowCount: this.state.tableRowCount,
   };
-}
+};
 
 export default App;
 

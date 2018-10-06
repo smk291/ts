@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './App.css';
 
-interface INumberInputProps {
+export interface INumberInputProps {
   defaultVal?: number | null | undefined;
   formClassName?: string;
   formTitle?: string;

@@ -2,7 +2,7 @@ import * as React from 'react';
 import './App.css';
 import { NumberInput } from './NumberInput';
 
-interface IProps {
+export interface IProps {
   changePage: (
     e:
       | React.MouseEvent<HTMLDivElement | HTMLInputElement>

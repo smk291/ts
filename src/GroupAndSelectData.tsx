@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-interface ISetDataAndGroupingProps {
+export interface ISetDataAndGroupingProps {
   changeDataset: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   expiredDataOnly: boolean;
   groupDataBy: 'purchase' | 'day' | 'item';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-interface IExcludeProps {
+export interface IExcludeProps {
   values: string[];
   exclude: string[];
   onClick: (e: string) => void;

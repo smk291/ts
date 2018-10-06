@@ -67,7 +67,7 @@ export const Table = (props: ITableProps) => {
   }
 };
 
-interface ITableProps {
+export interface ITableProps {
   boughtAfterExpiration: Item[];
   dataByPurchase: Item[];
   dataByItem: { [key: string]: number };
