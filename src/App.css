@@ -1,304 +1,53 @@
-*,
-:after,
-:before {
-  box-sizing: border-box;
-}
-
-body,
-html {
+.flexSideInput {
+  display: flex;
+  flex-direction: row;
   margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  width: 600px;
 }
 
-.results {
-  display: flex;
-  flex-direction: row;
+.flexSideInput > form > div {
+  width: 80%;
+  margin: 0 10%;
 }
 
 
-.tableHeader, 
-.cell,
-.filtersHeader,
-.filterLabel,
-.exclude,
-.numberInputLabel,
-.datepickerLabel,
-.paginationInput {
-  /* width: 100%; */
-  height: 30px;
-  padding: 0 10px;
-  font-size: 12px;
-  line-height: 30px;
-  color: #eff1f5;
-  overflow: hidden;
+.canvas {
+  width: 800px;
+  height:400px;
+  shape-rendering: geometricPrecision;
+  max-width: 100vw;
 }
 
-.filtersHeader {
-  font-weight: 600;
-  display: flex;
-  justify-content: space-between;
+.standardMargin {
+  margin: 10px;
 }
 
-.filterLabel {
-  display:  flex;
-  justify-content: space-between;
-  border-left: 10px solid #a3be8c;
-  cursor: pointer;
-}
-
-.filterLabel:hover {
-  background-color: #6A757F;
-}
-
-.filterLabel {
-  border-left: 10px solid #a3be8c;
-}
-
-.filtersHeader, 
-.tableHeader > th:nth-of-type(1),
-.formContainer {
-  border-left: 10px solid #FCAA67;
-}
-
-.tableHeader, .filters {
-  background-color: #343d46;
-}
-
-.filters {
-  width: 400px;
-  height: 100vh;
-}
-
-.filterContainer {
+.slider {
+  -webkit-appearance: none;
   width: 100%;
+  height: 15px;
+  border-radius: 5px;   
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
 }
 
-
-.filterSections {
-  height: calc(100vh - 30px);
-  overflow: auto;
-}
-
-.excludeContainer {
-  background-color: #343d46;
-  border-left: 10px solid #fcaa67;
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 auto;
-  padding-left: 20px;
-}
-
-.exclude {
-  width: 120px;
-  padding: 20px 15px;
-  display:  flex;
-  align-items: center;
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%; 
+  background: #4CAF50;
   cursor: pointer;
 }
 
-.excludeText {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.tableContainer {
-  height: calc(100vh - 50px);
-}
-
-.table {
-  font-size: 12px;
-  border-collapse: collapse;
-  height: calc(100% - 50px);
-  background-color: #343d46;
-}
-
-.table > tbody {
-  display: block;
-  overflow: auto;
-  height: calc(100vh - 80px);
-}
-
-.notFilteredout {
-  background-color: #6A757F;
-}
-
-.filteredOut {
-  color: #969ea5;
-}
-
-.table > tbody > tr {
-  display:table;
-  width: 560px;
-  table-layout:fixed;/* even columns width , fix width of table too*/
-}
-.table > thead {
-  display:table;
-  width: 555px;
-  table-layout:fixed;/* even columns width , fix width of table too*/
-}
-
-.tableHeader > th {
-  text-align: left;  
-  padding-left: 10px;
-}
-
-.row {
-  text-align:left;
-  background-color: #4D5863;
-  padding-left: 10px;
-}
-
-
-.row > .cell {
-  padding: 10px 10px;
-}
-
-.cell {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.row > .cell:nth-of-type(1) {
-  border-left: 10px solid #4D5863;
-}
-
-/* .row:after {
-  border-right: 10px solid #4D5863;
-  height: 100%;
-} */
-
-.rowEven > .cell {
-  background-color: #6A757F;
-}
-
-.rowEven > .cell:nth-of-type(1) {
-  border-left: 10px solid #6A757F;
-}
-/* 
-.rowEven:after {
-  border-right: 10px solid #6A757F;
-  height: 100%;
-} */
-
-.cell {
-  font-weight: 400;
-}
-
-.backgroundDark {
-  background-color: #4D5863;
-}
-
-.collapsibleFormLeftBorder {
-  border-left: ;
-}
-
-.backgroundLight {
-  background-color: #6A757F;
-}
-
-.numberInputContainer,
-.datepickerContainer {
-  display: flex;
-  flex-direction: row;
-  padding: 10px;
-}
-
-.numberInputContainer {
-  width: 250px;
-}
-
-.datepickerLabel,
-.numberInputLabel {
-  padding-left: 0;
-}
-
-.numberInputContainer {
-  flex-direction: row;
-}
-
-.datepickerContainer {
-  flex-direction: row;
-}
-
-.datepickerInput {
-  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-}
-
-.numberInputLabel {
-  width: 110px;
-}
-
-.datepickerLabel {
-  width: 160px;
-}
-
-.numberInput {
-  padding: 0 5px;
-  width: 60px;
-}
-
-.datepickerInput {
-  width: 160px;
-}
-
-.dataSelection {
-  border-left: unset;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.dataSelectionInput {
-  margin-right: 15px;
-}
-
-.rowGrouped > .cell {
-  padding: 5px 10px;
-}
-
-.paginationContainer {
-  display:flex;
-  justify-content: space-between;
-  width: 100%;
-  height: 50px;
-  align-items: center;
-}
-
-.paginationInputFlex {
-  display: flex;
-  align-items: center;
-}
-
-.pageIncrementer {
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
   cursor: pointer;
-  font-size: 30px;
-}
-
-.pageInput {
-  width: 40px;
-}
-
-.backgroundDarkest {
-  background-color: #343d46;
-}
-
-.resetFilters {
-  padding: 0 10px;
-  cursor: pointer;
-}
-
-.resetFilters:hover {
-  background-color: #6A757F;
-}
-
-.pageChangeContainer {
-  display: flex;
-}
-
-.expiredCheckbox {
-  line-height: unset;
-  height: unset;
 }

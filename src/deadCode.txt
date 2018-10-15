@@ -1,0 +1,123 @@
+      // {/* <div className="slidecontainer">
+      //   {sliderVals && sliderVals.minLength || null}
+      //   <input type="range" min={sliderVals && sliderVals.minLength} max={sliderVals && sliderVals.maxLength} value={sideLength || undefined} className="slider" id={"slider" + inputNumber} />
+      //   {sliderVals && sliderVals.maxLength || null}
+      // </div> */}
+
+// function getSideLengthInputs (this: App): HTMLInputElement[] | null {
+//   return this.sides.current &&
+//     Array.from(this.sides.current.getElementsByTagName('input'))
+//       .filter(v => v.type === 'text');
+// }
+
+// function setSliders (this: App, e: React.ChangeEvent<HTMLInputElement>, inputNumber: 0 | 1 | 2 ): void | {minLength: number; maxLength: number; } {
+//   // e.preventDefault();
+
+//   const sides = getSideLengthInputs.call(this) as HTMLInputElement[] | null;
+//   const currentTextInput = getSideLengthInputs[inputNumber] as HTMLInputElement | null;
+  
+//   if (!sides || !currentTextInput) return;
+
+//   currentTextInput.value = e.currentTarget.value;
+
+//   sides;
+
+//   const adjacentSides = sides
+//     .map(v => Number(v.value))
+//     .filter((_v, i) => i !== inputNumber);
+//   const adjacentSide1 = adjacentSides[0];
+//   const adjacentSide2 = adjacentSides[1];
+//   const maxLength = adjacentSide1 && adjacentSide2 && adjacentSide1 + adjacentSide2;
+//   const minLength = adjacentSide1 && adjacentSide2 && Math.abs(adjacentSide1 - adjacentSide2);
+
+//   // Array.from(document.getElementsByTagName('input'))
+//   //   .filter((v, i) => v.type === 'range' && i !== inputNumber)
+//   //   .map((v, i, vs) => 
+//   //     setSliderMinMax(v, i, vs, inputNumber, sides.map( v => Number(v.value)))
+//   //   )
+
+//   return {maxLength, minLength};
+// }
+
+
+// function setSliderMinMax (
+//   _rangeInput: HTMLInputElement, _idx: number, rangeInputs: HTMLInputElement[], sliderNumber: 0 | 1 | 2, sideLengths: number[] | null
+// ) {
+  
+//   if (!sideLengths) return;
+
+//   rangeInputs
+//     .map(input => {
+//       const adjacentSides = sideLengths.filter((_v, i) => i !== sliderNumber);
+//       const adjacentSide1 = adjacentSides[0];
+//       const adjacentSide2 = adjacentSides[1];
+//       const maxLength = adjacentSide1 && adjacentSide2 && adjacentSide1 + adjacentSide2;
+//       const minLength = adjacentSide1 && adjacentSide2 && Math.abs(adjacentSide1 - adjacentSide2);
+
+//       if (minLength && maxLength) {
+//         input.min = minLength.toString();
+//         input.max = maxLength.toString();
+//       }
+//     })
+// }
+
+
+// {/* <menu data-ts="Menu">
+// <li>
+// <button>
+// <span>I have an icon on my right</span>
+// <sub>And a second line!</sub>
+// <i className="ts-icon-rating"></i>
+// </button>
+// </li>
+// <li>
+// <button>
+// <i className="ts-icon-rating"></i>
+// <span>I have an icon on my left, but skipped the second line!</span>
+// </button>
+// </li>
+// </menu> */}
+// {/* <h1>Main content</h1> */}
+// {/* <button data-ts="Button" className="ts-primary">
+// <span>Primary</span>
+// </button>
+// <button data-ts="Button" className="ts-secondary">
+// <span>Secondary</span>
+// </button>
+// <button data-ts="Button" className="ts-tertiary">
+// <span>Tertiary</span>
+// </button> */}
+
+// {/* <aside ts-aside>
+//   <div ts-panel>
+//     <p>Aside content</p>
+//   </div>
+// </aside> */}
+
+// {/* <i className="ts-icon-apps" />
+// <i className="ts-icon-myapps" />
+// <i className="ts-icon-archive" />
+// <i className="ts-icon-broadcastmessage" />
+// <i className="ts-icon-cart" />
+// <i className="ts-icon-discovery" />
+// <i className="ts-icon-dispute" />
+// <i className="ts-icon-halt" />
+// <i className="ts-icon-heart" />
+// <i className="ts-icon-pay" />
+// <i className="ts-icon-timer" />
+// <i className="ts-icon-send" /> */}
+// {/* <div data-ts="Note">
+// <i className="ts-icon-heart"></i>
+// <p>You love the Note!</p>
+// </div> */}
+// {/* <footer data-ts="FooterBar"/> */}
+
+// const sides =
+// this.sides.current &&
+// Array.from(this.sides.current.getElementsByTagName('input'))
+//   .map(v => Number(v.value));
+
+
+// const hideSlider1 = !sides || isNaN(sides[1]) || isNaN(sides[2]);
+// const hideSlider2 = !sides || isNaN(sides[0]) || isNaN(sides[2]);
+// const hideSlider3 = !sides || isNaN(sides[0]) || isNaN(sides[1]); 
