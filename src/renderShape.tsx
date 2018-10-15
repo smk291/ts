@@ -29,7 +29,7 @@ export function isValidTriangle (this: App) {
   // console.log(sidesAreValidTriangle(sideLengths));
   
   if (!sidesAreValidTriangle(sideLengths)) {
-    setError("Sorry, these values don't form a valid 2d triangle.");
+    setError("Sorry, these values don't form a valid 2d triangle. The longest side can be no shorter than the difference between the other two sides and no greater than their sum.");
 
     return false;
   }
@@ -70,39 +70,43 @@ export function drawTriangle (this: App, sidesFromRefs: Sides | null) {
     const { offset, h } = canvasParams;
     
     const ctx = canvas.getContext('2d');
-    
+
     if (!ctx) return;
 
+
+    // Start drawing coordinate grid
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+    ctx.imageSmoothingEnabled = false;
     drawGrid.call(this)
+    // Finish drawing coordinate grid
 
-    const sortedSides = sidesFromRefs;
+    if (!sidesFromRefs) return;
 
-    if (!sortedSides) return;
-
-    const scalingFactor = 300 / Math.max(...sortedSides);
+    const scalingFactor = 300 / Math.max(...sidesFromRefs);
     
     const sides: LabeledSides = {
-      c: sortedSides[0] * scalingFactor,
-      a: sortedSides[1] * scalingFactor,
-      b: sortedSides[2] * scalingFactor,
+      c: sidesFromRefs[0] * scalingFactor,
+      a: sidesFromRefs[1] * scalingFactor,
+      b: sidesFromRefs[2] * scalingFactor,
     };
 
+    const horizontalOffset = offset;
+    const verticalOffset = h - offset;
+
     // const scaleBy = getProportions.call(this);
-    const point0: [number, number] = [offset, h - offset];
-    const point1: [number, number] = [offset + sides.c, h - offset];
+    const point0: [number, number] = [horizontalOffset, verticalOffset];
+    const point1: [number, number] = [horizontalOffset + sides.c, verticalOffset];
 
     const x = (sq(sides.a) - sq(sides.b) - sq(sides.c)) / (-2 * sides.c);
     const y = Math.sqrt(sq(sides.b) - sq(x));
 
-    const xAdjusted = (offset + sides.c) - x;
-    const yAdjusted = (h - offset) - y;
+    const xAdjusted = (horizontalOffset + sides.c) - x;
+    const yAdjusted = verticalOffset - y;
 
     const point2: [number, number] = [xAdjusted, yAdjusted];
 
-    const xMin = Math.min(...[point0, point1, point2].map(v => v[0]))
-    
+    const xMin = Math.min(...[point0, point1, point2].map(v => v[0]));
+
     ctx.beginPath(); 
     ctx.moveTo(point0[0] - xMin + offset, point0[1]);
     ctx.lineTo(point1[0] - xMin + offset, point1[1]);
@@ -111,22 +115,49 @@ export function drawTriangle (this: App, sidesFromRefs: Sides | null) {
     ctx.fillStyle = '#aaa';
     ctx.fill();
 
-    // console.log('xOriginal');
-    // console.log(x);
-    // console.log('yOriginal');
-    // console.log(y);
-    // console.log('x');
-    // console.log(x);
-    // console.log(offset + sides.c - x);
-    // console.log('y');
-    // console.log(yAdjusted);
-    // console.log('point1: ');
-    // console.log(point0);
-    // console.log('point2');
-    // console.log(point1);
-    // console.log('point3: ')
-    // console.log(point2)
+    const createLabelClosure = (point: [number, number], labelNumber: number) => createCoordinatesLabel(point, horizontalOffset, verticalOffset, scalingFactor, labelNumber, xMin);
+
+    ctx.font = '12px Verdana';
+    ctx.fillStyle = '#f00';
+    ctx.fillText(...createLabelClosure(point0, 0));
+    ctx.fillText(...createLabelClosure(point1, 1));
+    ctx.fillText(...createLabelClosure(point2, 2));
   }
+}
+
+const getExtraOffset = (labelNumber: number, xMin: number) => {
+  if (labelNumber === 0)
+    return [20, -5];
+  if (labelNumber === 1)
+    return [0, -5];
+  if (labelNumber === 2) {
+    if (xMin < 10) {
+      return [50, 0]
+    }
+    return [0, 0];
+  }
+
+  return [0, 0];
+}
+
+function createCoordinatesLabel (points: [number, number], hOffset: number, vOffset: number, scalingFactor: number, labelNumber: number, xMin: number): [string, number, number] {
+  const extraOffset = getExtraOffset(labelNumber, xMin)
+
+  const xCoord = formatCoord(Math.abs((points[0] - hOffset) / scalingFactor));
+  const yCoord = formatCoord(Math.abs((points[1] - vOffset) / scalingFactor));
+
+  return[
+    '(' + xCoord + ', ' + yCoord + ')',
+    points[0]  + extraOffset[0],
+    points[1]  + extraOffset[1]
+  ];
+}
+
+function formatCoord (n: number) {
+  if (Math.round(n) === n)
+    return n;
+
+  return n.toFixed(2);
 }
 
 type LabeledSides = {
@@ -136,14 +167,14 @@ type LabeledSides = {
 };
 
 function sidesAreValidTriangle (sides: Sides) {
-  const sortedSides = sides.sort();
-  const thirdSideMinLength = sortedSides[1] - sortedSides[0];
-  const thirdSideMaxLength = sortedSides[0] + sortedSides[1];
+  const sidesFromRefs = sides.sort();
+  const thirdSideMinLength = sidesFromRefs[1] - sidesFromRefs[0];
+  const thirdSideMaxLength = sidesFromRefs[0] + sidesFromRefs[1];
 
   return(
     sides.every(v => v >= 0) &&
-    sortedSides[2] >= thirdSideMinLength &&
-    sortedSides[2] <= thirdSideMaxLength
+    sidesFromRefs[2] >= thirdSideMinLength &&
+    sidesFromRefs[2] <= thirdSideMaxLength
   );
 }
 
