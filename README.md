@@ -21,7 +21,7 @@ I approached the project with a few design principes/goals/plans:
 
 About half-way through the project I started refactoring the code to add a custom Triangle class. But it was so small that it didn't justify the additional complexity/boilerplate.
 
-1. UI-wise, my decision to use React hamstrung me more than I expected. The tradeshift-ui is supposed to be framework-neutral, right? I couldn't make some of the Tradeshift UI elements work. I'm guessing that that's because they're directly manipulating the DOM, preventing React from seeing them and correctly reconciling the changes. In the past, I've solved this kind of problems by putting the manipulated elements in state, but given the time constraints, I decided that that shouldn't be a priority.
+1. *No magical constants. Do everything with functions and parameters.* UI-wise, my decision to use React hamstrung me more than I expected. The tradeshift-ui is supposed to be framework-neutral, right? I couldn't make some of the Tradeshift UI elements work. I'm guessing that that's because they're directly manipulating the DOM, preventing React from seeing them and correctly reconciling the changes. In the past, I've solved this kind of problems by putting the manipulated elements in state, but given the time constraints, I decided that that shouldn't be a priority.
 
 So I stripped out a few things (sidebar, tabs, notifications, error messaage using Tradshift's UI components) and was left with a less designed, pretty app than originally planned. I added the graph because, although the exercise didn't request it, the functionality seems to expect/benefit from it: if the user wants information about a particular triangle, wouldn't they want to know what it looks like?
 
