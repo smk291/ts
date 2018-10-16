@@ -1,13 +1,57 @@
+.main {
+  padding: 20px;
+}
+
+.errorContainer {
+  background-color: rgb(191, 0, 0);
+  color: #fff;
+  font-weight: 600;
+  width: 800px;
+}
+
+.triangleType {
+  font-weight: 600;
+  display: unset;
+}
+
+.triangle {
+  color: rgb(32,160,233);
+}
+
+.equilateral {
+  color: rgb(74,137,32);
+}
+
+.isosceles {
+  color: rgb(32,160,233);
+}
+
+.scalene {
+  color: rgb(148,52,200);
+}
+
 .flexSideInput {
   display: flex;
   flex-direction: row;
   margin: 0;
   width: 600px;
+  align-items: center;
 }
 
 .flexSideInput > form > div {
-  width: 80%;
+  width: 60%;
   margin: 0 10%;
+}
+
+.submitButton {
+  /* margin-left: 10px; */
+}
+
+.submitButton > div {
+  position: relative;
+  /* right: 10px; */
+  white-space: nowrap;
+  width: 55px;
 }
 
 

@@ -5,7 +5,7 @@ import { computeAndGraphTriangle } from './ComputeAndGraphTriangle';
 import { isValidTriangle, getSideLengths } from './TestInputs';
 import { canvasParams, inputNumberToLetter } from './Constants';
 
-declare const ts: any;
+// declare const ts: any;
 
 export default class App extends React.Component<{}, {}> {
   // this.canvas is a React ref bound to a canvas element.
@@ -23,30 +23,28 @@ export default class App extends React.Component<{}, {}> {
   // 'getSideLenths' parses the three input values as numbers
   getSideLengths: (this: App) => null | number [];
   // 'drawTriangle' renders the triangle if the input values can form a valid 2d triangle
-  drawTriangle: (this: App) => void;
+  computeAndDrawTriangle: (this: App) => void;
+
+  // This ref is used to display error messages
+  errorMessage: React.RefObject<HTMLDivElement>;
+  // This ref is used to display the type of triangle
+  triangleType: React.RefObject<HTMLDivElement>;
 
   constructor(props: {}) {
     super(props);
 
     this.canvas = React.createRef();
+    this.errorMessage = React.createRef();
+    this.triangleType = React.createRef();
     this.inputs = React.createRef();
     this.isValidTriangle = isValidTriangle.bind(this);
-    this.drawTriangle = computeAndGraphTriangle.bind(this);
+    this.computeAndDrawTriangle = computeAndGraphTriangle.bind(this);
     this.getSideLengths = getSideLengths.bind(this);
     this.drawGrid = drawGrid.bind(this);
   }
 
   componentDidMount() {
-    ts.ui.get('#mytabbar', (tabbar: any) => {
-      tabbar.tabs([
-        {label: 'One'},
-        {label: 'Two'},
-        {label: 'Three'}
-      ]);
-    });
-
     const canvas = this.canvas.current;
-
 
     // Set canvas height and width
     if (canvas) {
@@ -60,37 +58,76 @@ export default class App extends React.Component<{}, {}> {
   testAndDraw = (e: React.FormEvent<EventTarget>) => {
     e.preventDefault();
 
-    // If 'isValidTriangle' returns false, values do not comprise a valid, flat, 2d triangle
-    if (!this.isValidTriangle.call(this))
-      return;
+    const errorElement = this.errorMessage.current;
+    const triangleTypeContainer = this.triangleType.current;
 
-    this.drawTriangle.call(this, this.getSideLengths());
+    // Clear error messages
+    if (errorElement) {
+      errorElement.innerHTML = '';
+      errorElement.style.display = 'none';
+    }
+
+    // Clear success message
+    if (triangleTypeContainer) {
+      triangleTypeContainer.innerHTML = '';
+      triangleTypeContainer.style.display = 'none';
+    }
+
+    // If 'isValidTriangle' returns false, values do not comprise a valid, flat, 2d triangle
+    // Show error
+    if (!this.isValidTriangle.call(this)) {
+      if (errorElement)
+        errorElement.style.display = 'block';
+
+      return;
+    }
+
+    // compute & draw triangle
+    this.computeAndDrawTriangle.call(this, this.getSideLengths());
+
+    // classify triangle
+    const triangleType = classifyTriangle(this.getSideLengths() as [number, number, number]);
+
+    // Show success message
+    if (triangleTypeContainer) {
+      triangleTypeContainer.style.display = 'block';
+      triangleTypeContainer.innerHTML = `Hey, that\'s a nice <span class="${triangleType}">${triangleType}</span> triangle!`;
+    }
   }
 
   render() {
-    const sideInputs = [0, 1, 2].map(v => input.call(this, v));
+    const sideInputs = [0, 1, 2].map(v => sideLengthTextInput.call(this, v));
 
     return (
-      <main data-ts="Main">
-        <header id="mytabbar" data-ts="TabBar"></header>
+      <main data-ts="Main" className='main'>
+        <h2>
+          Triangle Classifier
+        </h2>
+        <div>
+          Enter three positive, finite, non-zero numbers below.
+        </div>
+        <div>
+          If they form a valid triangle, I'll plot the triangle on the grid below and tell you what kind of triangle it is (<span className='scalene'>scalene</span>, <span className='isosceles'>isosceles</span> or <span className='equilateral'>equilateral</span>).
+        </div>
+        <br />
+        <br />
         <canvas ref={this.canvas} className='canvas' />
         <div ref={this.inputs}>
           <div className='flexSideInput'>
             {sideInputs}
+            <button data-ts="Button" className="ts-primary submitButton" onClick={this.testAndDraw}>
+              <div>Submit</div>
+            </button>
           </div>
-          <button data-ts="Button" className="ts-primary" onClick={this.testAndDraw}>
-            <span>
-              Evaluate
-            </span>
-          </button>
-          <div className="error-message" />
+          <div ref={this.errorMessage} className='errorContainer'/>
+          <div ref={this.triangleType} className='triangleType' />
         </div>
       </main>
     );
   }
 }
 
-function input(this: App, inputNumber: 0 | 1 | 2) {
+function sideLengthTextInput(this: App, inputNumber: 0 | 1 | 2) {
   return(
     <form data-ts="Form" onSubmit={this.testAndDraw}>
       <fieldset>
@@ -110,4 +147,31 @@ function input(this: App, inputNumber: 0 | 1 | 2) {
     </form>
   );
 }
+
+const classifyTriangle = (sides: [number, number, number]) => {
+  if (isEquilateral(sides))
+    return 'equilateral';
+  else if (isIsosceles(sides))
+    return 'isosceles';
+  else
+    return 'scalene';
+
+};
+
+const isEquilateral = (sides: [number, number, number]) => {
+  if (sides[0] === sides[1] && sides[1] === sides[2])
+    return true;
+
+  return false;
+};
+
+
+const isIsosceles = (sides: [number, number, number]) => {
+  for (let i = 0; i < 3; i++) {
+    if (sides.indexOf(sides[i]) !== sides.lastIndexOf(sides[i]))
+      return true;
+  }
+
+  return false;
+};
 

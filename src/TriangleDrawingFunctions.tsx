@@ -25,14 +25,15 @@ export const scaleAndLabelSideLengths = (sidesFromRefs: number[], scalingFactor:
   //              sides.c
 
   return {
-    a: sidesFromRefs[0] * scalingFactor, // Bottom side
+    a: sidesFromRefs[0] * scalingFactor, // Left side
     b: sidesFromRefs[1] * scalingFactor, // Right side
-    c: sidesFromRefs[2] * scalingFactor, // Left side
+    c: sidesFromRefs[2] * scalingFactor, // Bottom side
   } as LabeledSides;
 };
 
 
-// 'getCanvasCoordinates' calculates coordinates on the assumption that vertex B is at (0, 0), as perceived by the user.
+// 'getCanvasCoordinates' calculates vertex coordinates on the assumption that vertex B is at (0, 0) on the Cartesian graph.
+// Return type is Coordinates
 export const getCanvasCoordinates = (horizontalOffset: number, verticalOffset: number, sides: LabeledSides): Coordinates => {
   const point0: [number, number] = [horizontalOffset, verticalOffset];
 
@@ -59,6 +60,7 @@ export const getCanvasCoordinates = (horizontalOffset: number, verticalOffset: n
 
 // 'adjustCoordinates' alters the triangle's coordinates if necessary so that
 // its vertices' x coordinate are all >= 0
+// Return type is Coordinates
 export const adjustCoordinates = (unadjustedCanvasCoords: Coordinates, xMin: number): Coordinates => {
   const { point0, point1, point2 } = unadjustedCanvasCoords;
   const { offset } = canvasParams;
@@ -70,15 +72,17 @@ export const adjustCoordinates = (unadjustedCanvasCoords: Coordinates, xMin: num
   };
 };
 
-// Returns an array of objects
+// Returns an array of objects {label: string, coords: [number, number]}[]:
+//    value of 'label' is the x coordinate and y coordinate of the vertex on the Cartesian graph
+//    value of 'coords' is the x coordinate and y coordinate on the canvas element  where the label is to be drawn
 export const createLabels = (
   horizontalOffset: number,
   verticalOffset: number,
   scalingFactor: number,
   xMin: number,
   uncorrected: Coordinates
-) => {
-  const labelCoordinatesClosure = (point: [number, number], labelNumber: number): {label: string, coords: [number, number]} =>
+): Array<{label: string, coords: [number, number]}> => {
+  const labelCoordinatesClosure = (point: [number, number], labelNumber: number) =>
     createCoordinatesLabel(
       point,
       horizontalOffset,
@@ -97,6 +101,7 @@ export const createLabels = (
 };
 
 // Move each label relative to the vertex it's labeling
+// Imperfect. Could be better.
 export const getExtraOffset = (labelNumber: number, xMin: number) => {
   if (labelNumber === 0)
     return [20, -5];
@@ -112,6 +117,9 @@ export const getExtraOffset = (labelNumber: number, xMin: number) => {
   return [0, 0];
 };
 
+// Returns object:
+//    value of 'label' is the x coordinate and y coordinate of the vertex on the Cartesian graph
+//    value of 'coords' is the x coordinate and y coordinate on the canvas element  where the label is to be drawn
 export const createCoordinatesLabel = (
   points: [number, number],
   _hOffset: number,
@@ -133,11 +141,14 @@ export const createCoordinatesLabel = (
   };
 };
 
-// Show decimals if
+// Show coordinate as whole number
+// if its remainder % 1 is less than
+// .01, else print it to two decimal
+// places
 const formatCoord = (n: number) => {
   if (n % 1 >= .01)
     return n.toFixed(2);
 
-  return n;
+  return Math.round(n);
 };
 

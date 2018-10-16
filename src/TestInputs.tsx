@@ -11,7 +11,7 @@ export function isValidTriangle(this: App) {
 
   // If sideLengths is falsey, there are no inputs.
   if (!sideLengths) {
-    setError('Sorry, inputs seem to be missing.');
+    setError.call(this, 'Sorry, inputs seem to be missing.');
 
     return false;
   }
@@ -20,13 +20,13 @@ export function isValidTriangle(this: App) {
 
   // All inputs have values that are parseable as valid numbers
   if (!allSidesHaveLengths(sideLengths)) {
-    setError('Please enter lengths for all three sides.');
+    setError.call(this, 'Please enter lengths for all three sides.');
 
     return false;
   }
 
   if (sideLengths.some(v => [NaN, Infinity, -Infinity, 0].indexOf(v) !== -1) || sideLengths.some(v => v <= 0 )) {
-    setError('Sides must be finite numbers larger than 0');
+    setError.call(this, 'Sides must be finite numbers larger than 0');
 
     return false;
   }
@@ -35,7 +35,7 @@ export function isValidTriangle(this: App) {
 
   // The inputs don't add up to a valid triangle
   if (!sidesAreValidTriangle(sideLengths)) {
-    setError("These values don't form a valid, flat, 2d triangle. The longest side can be no shorter than the difference of the other two sides and no greater than their sum.");
+    setError.call(this, "These values don't form a valid, flat, 2d triangle. The longest side can be no shorter than the difference of the other two sides and no greater than their sum.");
 
     return false;
   }
@@ -43,12 +43,13 @@ export function isValidTriangle(this: App) {
   return true;
 }
 
-const setError = (message: string) => {
-  const errorContainer = document.getElementsByClassName('error-message')[0];
+function setError(this: App, message: string) {
+  const errorContainer = this.errorMessage.current;
 
-  if (errorContainer)
+  if (errorContainer) {
     errorContainer.innerHTML = message;
-};
+  }
+}
 
 // 'getSideLenths' parses the three input values as numbers
 export function getSideLengths(this: App): number[] | null {
@@ -66,7 +67,8 @@ export function getSideLengths(this: App): number[] | null {
 }
 
 function sidesAreValidTriangle(sides: Sides) {
-  const sidesFromRefs = sides.sort();
+  const sidesFromRefs = sides.sort().reverse();
+  console.log(sidesFromRefs);
   const thirdSideMinLength = sidesFromRefs[1] - sidesFromRefs[0];
   const thirdSideMaxLength = sidesFromRefs[0] + sidesFromRefs[1];
 
