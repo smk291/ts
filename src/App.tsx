@@ -24,16 +24,16 @@ export default class App extends React.Component<{}, {}> {
   // 'isValidTriangle' tests whether the three values form a valid triangle
   // If the inputs fail this test, the app will not try to draw a triangle
   isValidTriangle: (this: App) => boolean;
-  // 'getSideLenths' parses the three input values as numbers
+  // 'getSideLengths' parses the three input values as numbers
   getSideLengths: (this: App) => null | number [];
-  // 'drawTriangle' renders the triangle if the input values can form a valid 2d triangle
-  computeAndDrawTriangle: (this: App) => void;
-  // This function tests the inputs and draws the triangle if possible.
+  // 'testAndDraw' function tests the inputs for validity. If they pass, it calls the function that  draws and classifies the triangle.
   testAndDraw: (this: App, e: React.FormEvent<EventTarget>) => void;
+  // 'computeAndDrawTriangle' renders the triangle if the input values can form a valid 2d triangle
+  computeAndDrawTriangle: (this: App) => void;
 
   // This ref is used to display error messages
   errorMessage: React.RefObject<HTMLDivElement>;
-  // This ref is used to display the type of triangle
+  // This ref is used to display the success message, describing the type of the triangle
   triangleType: React.RefObject<HTMLDivElement>;
 
   constructor(props: {}) {
@@ -101,7 +101,7 @@ function testAndDraw(this: App, e: React.FormEvent<EventTarget>) {
   const errorElement = this.errorMessage.current;
   const triangleTypeContainer = this.triangleType.current;
 
-  // Clear error messages
+  // Clear error message
   if (errorElement) {
     errorElement.innerHTML = '';
     errorElement.style.display = 'none';
@@ -114,7 +114,7 @@ function testAndDraw(this: App, e: React.FormEvent<EventTarget>) {
   }
 
   // If 'isValidTriangle' returns false, values do not comprise a valid, flat, 2d triangle
-  // Show error
+  // Show error message
   if (!this.isValidTriangle.call(this)) {
     if (errorElement)
       errorElement.style.display = 'block';
@@ -122,10 +122,10 @@ function testAndDraw(this: App, e: React.FormEvent<EventTarget>) {
     return;
   }
 
-  // compute & draw triangle
+  // Compute & draw triangle
   this.computeAndDrawTriangle.call(this, this.getSideLengths());
 
-  // classify triangle
+  // Classify triangle
   const triangleType = classifyTriangle(this.getSideLengths() as [number, number, number]);
 
   // Show success message
@@ -172,7 +172,6 @@ const isEquilateral = (sides: [number, number, number]) => {
 
   return false;
 };
-
 
 const isIsosceles = (sides: [number, number, number]) => {
   for (let i = 0; i < 3; i++) {
