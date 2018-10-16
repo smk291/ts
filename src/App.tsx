@@ -5,8 +5,12 @@ import { computeAndGraphTriangle } from './ComputeAndGraphTriangle';
 import { isValidTriangle, getSideLengths } from './TestInputs';
 import { canvasParams, inputNumberToLetter } from './Constants';
 
-// declare const ts: any;
-
+// Intended functionality:
+// This app provides three text inputs, each representing the side of a triangle.
+// User enters side lenghts.
+// App computes whether they form a valid triangle.
+// If they do, app plots triangle on a graph
+// If they don't, app provides error message.
 export default class App extends React.Component<{}, {}> {
   // this.canvas is a React ref bound to a canvas element.
   // This is where the app draws a triangle proportional to the user's inputs
