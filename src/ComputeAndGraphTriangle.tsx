@@ -30,8 +30,8 @@ export function computeAndGraphTriangle(this: App, sidesFromRefs: number[] | nul
   //    element's coordinates.
 
   // On the graph below,
-  // a's coordinates are (0, 0) on the canvas element, and (-horizontalOffset, -verticalOffset) on the Cartesian graph
-  // b's coordinates are (horizontalOffset, verticalOFfset, 0) on the canvas element, and (0, 0) on the Cartesian graph.
+  // a's coordinates are (0, 0) on the canvas element, and (-horizontalOffset, -verticalOffset) on the Cartesian graph.
+  // b's coordinates are (horizontalOffset, verticalOFfset) on the canvas element, and (0, 0) on the Cartesian graph.
   //
   //           a
   //            *      |
@@ -43,8 +43,8 @@ export function computeAndGraphTriangle(this: App, sidesFromRefs: number[] | nul
   //                   |
   //                   |
 
-  // 'horizontalOffset' and 'verticalOffset' are the offsets: (horizontalOffset, verticalOffset) on the canvas graph
-  // is (0, 0) on the Cartesian graph:
+  // 'horizontalOffset' and 'verticalOffset' are the offsets usesd to convert between canvas coordinates and
+  // Cartesian coordinates
 
   // Clear the canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);

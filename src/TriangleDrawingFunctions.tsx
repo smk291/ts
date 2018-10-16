@@ -7,23 +7,23 @@ function sq(num: number) { return Math.pow(num, 2); }
 // Multiplying that side by 'scalingFactor' will set its length to 300px.
 // and proportionally resize the other sides.
 // 'scaleAndLabelSideLengths' does that computation and puts each scaled length in an object
+
+// Return is an object.
+// The keys of the return are the labels/placeholders of their coresponding inputs ('a', 'b', 'c')
+// The value are the values of the input multiplied by the scalingFactor
+
+//                 /\
+//                /  \
+//               / C  \
+//              /      \
+//    sides.a  /        \  sides.b
+//            /          \
+//           / B       A  \
+//          /______________\
+//
+//              sides.c
+
 export const scaleAndLabelSideLengths = (sidesFromRefs: number[], scalingFactor: number) => {
-
-  // Return is an object.
-  // The keys of the return are the labels/placeholders of their coresponding inputs ('a', 'b', 'c')
-  // The value are the values of the input multiplied by the scalingFactor
-
-  //                 /\
-  //                /  \
-  //               / C  \
-  //              /      \
-  //    sides.a  /        \  sides.b
-  //            /          \
-  //           / B       A  \
-  //          /______________\
-  //
-  //              sides.c
-
   return {
     a: sidesFromRefs[0] * scalingFactor, // Left side
     b: sidesFromRefs[1] * scalingFactor, // Right side
@@ -33,6 +33,8 @@ export const scaleAndLabelSideLengths = (sidesFromRefs: number[], scalingFactor:
 
 
 // 'getCanvasCoordinates' calculates vertex coordinates on the assumption that vertex B is at (0, 0) on the Cartesian graph.
+// On the final graph it may not be
+// If refactoring, I'd replace some of this with simpler trigonometric functions.
 // Return type is Coordinates
 export const getCanvasCoordinates = (horizontalOffset: number, verticalOffset: number, sides: LabeledSides): Coordinates => {
   const point0: [number, number] = [horizontalOffset, verticalOffset];
