@@ -1,4 +1,3 @@
-
 // 'w' and 'h' determine the dimensions of the canvas element
 // 'step' is the side length, in pixels, of the sqaures that comprise the graph's grid
 // 'offset' is where, to the viewer, x === 0 and y === 0

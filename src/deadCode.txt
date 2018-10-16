@@ -121,3 +121,75 @@
 // const hideSlider1 = !sides || isNaN(sides[1]) || isNaN(sides[2]);
 // const hideSlider2 = !sides || isNaN(sides[0]) || isNaN(sides[2]);
 // const hideSlider3 = !sides || isNaN(sides[0]) || isNaN(sides[1]); 
+
+
+
+
+        //         /\
+        //        /  \
+        //       / C  \
+        //      /      \
+        //  b  /        \  a
+        //    /          \
+        //   / A       B  \
+        //  /______________\
+
+        //         c
+
+// const computeAngles = {
+//   B: function betweenAandC (sides: LabeledSides) {
+//       const { a, b, c } = sides;
+
+//       return lawOfCosines(a, c, b);
+//     },
+//   C: function betweenBandA (sides: LabeledSides) {
+//     const { a, b, c } = sides;
+
+//     return lawOfCosines(a, b, c);
+//   },
+//   A: function betweenBandC (sides: LabeledSides) {
+//     const { a, b, c } = sides;
+
+//     return lawOfCosines(b, c, a);
+//   },
+// };
+
+// function lawOfCosines (adjacent: number, adjacent2: number, opposite: number) {
+//   return (sq(adjacent) + sq(adjacent2) - sq(opposite))
+//   / (2 * adjacent * adjacent2);
+// }
+
+
+
+
+    //   1) Converting side lengths into x and y coordinates,
+    //      starting from vertex A, treating it as though it were at (0, 0).
+    //   2) Compensating for Canvas' different x- and y-axis numbering.
+    //      Where x appears to be 0 on the visible graph, the true x-coordinate is the value of 'offset'
+    //      Where y appears to be 0 on the visible graph, the true y-coordinate is `h - offset` (canvas height - offset)
+    //
+    //               |‾‾‾ Distance from d to e this is where to the viewer x equals 0.
+    //               |    The rightmost x-coordinate, where x appears to equal zero
+    //               |    equals the value of `canvasparams.offset`.
+    //               |
+    //            |‾‾‾‾‾\
+    //          (0,0)                                                (canvasParams.w, canvasParams.h)
+    //      |‾           |                                              ‾‾‾‾‾|
+    //      |        \   |                                                   |
+    //    __|         \  |                                                   |
+    //   |  |          \ |                                                   |
+    //   |  |_     _____\|_____________________________________________       >  height of canvas element, `canvasParams.h`
+    //   |               |                                                   |
+    //   |               |                                                   |
+    //   |               |                                               ____|
+    //   |
+    //   |       (0, canvasParams.h)                                  (canvasParams.w, canvasparams.h)
+    //   |
+    //   |
+    //   |
+    //   |
+    //   Distance from start of canvas (true y-coordinate is 0)
+    //   to where x-axis is drawn; this is where to the viewer y equals 0.
+    //   The bottom-most y-coordinate, where y appears to be zero
+    //   equals the value of `canvasParams.h - canvasParams.offset
+

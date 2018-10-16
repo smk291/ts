@@ -1,7 +1,8 @@
 import * as React from 'react';
 import './App.css';
 import { drawGrid, DrawGridFn } from './drawGrid';
-import { isValidTriangle, getSideLengths, drawTriangle } from './renderShape';
+import { computeAndGraphTriangle } from './ComputeAndGraphTriangle';
+import { isValidTriangle, getSideLengths } from './TestInputs';
 import { canvasParams, inputNumberToLetter } from './Constants';
 
 declare const ts: any;
@@ -30,7 +31,7 @@ export default class App extends React.Component<{}, {}> {
     this.canvas = React.createRef();
     this.inputs = React.createRef();
     this.isValidTriangle = isValidTriangle.bind(this);
-    this.drawTriangle = drawTriangle.bind(this);
+    this.drawTriangle = computeAndGraphTriangle.bind(this);
     this.getSideLengths = getSideLengths.bind(this);
     this.drawGrid = drawGrid.bind(this);
   }
