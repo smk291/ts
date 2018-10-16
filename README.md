@@ -37,3 +37,8 @@ I approached the project with a few design principles/goals/plans:
 
 
 1. **No magical constants. Do everything with functions and parameters.** I left out a number of things that I thought about adding: sliders to change side lengths, responsive design, a Cartesian grid that scales correctly, labels for each side, coordinate labels that are positioned more attractively/appropriately, animations morphing one triangle into another, a history of the user's past triangles, etc. But I also tried to write the app in a way that laid the necessary groundwork for those things. There are almost no magical constants in the app. Almost everything is programmatic and parameterized. In order to add some of the things I listed at the start of this paragraph, I wouldn't need to make large changes to the functions I wrote. For many of them I'd instead need to pass my existing functions different parameters and/or call them in different ways.
+
+
+---
+
+This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
