@@ -78,9 +78,9 @@ export function computeAndGraphTriangle(this: App, sidesFromRefs: number[] | nul
   // 'getCanvasCoordinates' computes the triangle's coordinates on the canvas element.
   // It assumes that vertex B will be located at the center of the Cartesian graph (0, 0).
   const uncorrectedCanvasCoords = getCanvasCoordinates(horizontalOffset, verticalOffset, sides);
-  // But if B is obtuse, C's x value will be negative.
+  // But if B is obtuse, C's x coordinate will be negative.
   // The triangle is supposed to appear in the NE quadrant of the graph
-  // and so no vertex may have an x coordiante lower than 0.
+  // and so no vertex may have an x coordinate lower than 0.
   // Thus find the the triangle's lowest x value.
   const { point0, point1, point2 } = uncorrectedCanvasCoords;
   const xMin = Math.min(...[point0, point1, point2].map(v => v[0]));
@@ -100,7 +100,7 @@ export function computeAndGraphTriangle(this: App, sidesFromRefs: number[] | nul
 
   // 'createLabels' returns an object.
   // 'label' is a text label providing the x and y coordinates of the vertex on the Cartesian graph
-  // 'coods' is an array of two numbers -- an x coordinate and a y coordinate
+  // 'coords' is an array of two numbers -- an x coordinate and a y coordinate
   const labels = createLabels(horizontalOffset, verticalOffset, scalingFactor, xMin, uncorrectedCanvasCoords);
 
   // Draw labels

@@ -18,9 +18,9 @@ export function isValidTriangle(this: App) {
 
   // console.log(allSidesHaveLengths(sideLengths))
 
-  // All inputs have values that are parseable as valid numbers
+  // If 'allSidesHaveLengths' is false, at least one of the inputs' values, parsed as a number is NaN
   if (!allSidesHaveLengths(sideLengths)) {
-    setError.call(this, 'Please enter lengths for all three sides.');
+    setError.call(this, 'Please enter valid lengths for all three sides.');
 
     return false;
   }
@@ -35,7 +35,7 @@ export function isValidTriangle(this: App) {
 
   // The inputs don't add up to a valid triangle
   if (!sidesAreValidTriangle(sideLengths)) {
-    setError.call(this, "These values don't form a valid, flat, 2d triangle. The longest side can be no shorter than the difference of the other two sides and no greater than their sum.");
+    setError.call(this, "These values don't form a valid, flat, 2d triangle. No side can be shorter than the difference of the other two sides or greater than their sum.");
 
     return false;
   }
