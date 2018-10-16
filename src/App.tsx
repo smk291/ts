@@ -18,9 +18,9 @@ export default class App extends React.Component<{}, {}> {
   // 'this.inputs' is a React ref includes the three text inputs where uses can enter the side lengths
   // It also includes the 'evaluate' button
   inputs: React.RefObject<HTMLDivElement>;
+
   // 'drawGrid' draws the grid/graph
   drawGrid: DrawGridFn;
-  renderShape: (this: App) => void;
   // 'isValidTriangle' tests whether the three values form a valid triangle
   // If the inputs fail this test, the app will not try to draw a triangle
   isValidTriangle: (this: App) => boolean;
@@ -28,6 +28,8 @@ export default class App extends React.Component<{}, {}> {
   getSideLengths: (this: App) => null | number [];
   // 'drawTriangle' renders the triangle if the input values can form a valid 2d triangle
   computeAndDrawTriangle: (this: App) => void;
+  // This function tests the inputs and draws the triangle if possible.
+  testAndDraw: (this: App, e: React.FormEvent<EventTarget>) => void;
 
   // This ref is used to display error messages
   errorMessage: React.RefObject<HTMLDivElement>;
@@ -45,6 +47,7 @@ export default class App extends React.Component<{}, {}> {
     this.computeAndDrawTriangle = computeAndGraphTriangle.bind(this);
     this.getSideLengths = getSideLengths.bind(this);
     this.drawGrid = drawGrid.bind(this);
+    this.testAndDraw = testAndDraw.bind(this);
   }
 
   componentDidMount() {
@@ -59,45 +62,6 @@ export default class App extends React.Component<{}, {}> {
     this.drawGrid();
   }
 
-  testAndDraw = (e: React.FormEvent<EventTarget>) => {
-    e.preventDefault();
-
-    const errorElement = this.errorMessage.current;
-    const triangleTypeContainer = this.triangleType.current;
-
-    // Clear error messages
-    if (errorElement) {
-      errorElement.innerHTML = '';
-      errorElement.style.display = 'none';
-    }
-
-    // Clear success message
-    if (triangleTypeContainer) {
-      triangleTypeContainer.innerHTML = '';
-      triangleTypeContainer.style.display = 'none';
-    }
-
-    // If 'isValidTriangle' returns false, values do not comprise a valid, flat, 2d triangle
-    // Show error
-    if (!this.isValidTriangle.call(this)) {
-      if (errorElement)
-        errorElement.style.display = 'block';
-
-      return;
-    }
-
-    // compute & draw triangle
-    this.computeAndDrawTriangle.call(this, this.getSideLengths());
-
-    // classify triangle
-    const triangleType = classifyTriangle(this.getSideLengths() as [number, number, number]);
-
-    // Show success message
-    if (triangleTypeContainer) {
-      triangleTypeContainer.style.display = 'block';
-      triangleTypeContainer.innerHTML = `Hey, that\'s a nice <span class="${triangleType}">${triangleType}</span> triangle!`;
-    }
-  }
 
   render() {
     const sideInputs = [0, 1, 2].map(v => sideLengthTextInput.call(this, v));
@@ -128,6 +92,46 @@ export default class App extends React.Component<{}, {}> {
         </div>
       </main>
     );
+  }
+}
+
+function testAndDraw(this: App, e: React.FormEvent<EventTarget>) {
+  e.preventDefault();
+
+  const errorElement = this.errorMessage.current;
+  const triangleTypeContainer = this.triangleType.current;
+
+  // Clear error messages
+  if (errorElement) {
+    errorElement.innerHTML = '';
+    errorElement.style.display = 'none';
+  }
+
+  // Clear success message
+  if (triangleTypeContainer) {
+    triangleTypeContainer.innerHTML = '';
+    triangleTypeContainer.style.display = 'none';
+  }
+
+  // If 'isValidTriangle' returns false, values do not comprise a valid, flat, 2d triangle
+  // Show error
+  if (!this.isValidTriangle.call(this)) {
+    if (errorElement)
+      errorElement.style.display = 'block';
+
+    return;
+  }
+
+  // compute & draw triangle
+  this.computeAndDrawTriangle.call(this, this.getSideLengths());
+
+  // classify triangle
+  const triangleType = classifyTriangle(this.getSideLengths() as [number, number, number]);
+
+  // Show success message
+  if (triangleTypeContainer) {
+    triangleTypeContainer.style.display = 'block';
+    triangleTypeContainer.innerHTML = `Hey, that\'s a nice <span class="${triangleType}">${triangleType}</span> triangle!`;
   }
 }
 
