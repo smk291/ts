@@ -39,7 +39,7 @@ I approached the project with a few design principles/goals/plans:
       * Animated transitions from one triangle shape to another
       * Responsive design
       * A Cartesian grid that scales with the lengths of the triangle's sides
-      * Labels for each side, corresponding to the labels for each input, so that it's obvious what input mathces what side
+      * Labels for each side, corresponding to the labels for each input, so that it's obvious what input matches what side
       * Coordinate labels positioned more attractively/appropriately, depending on the shape of the triangle.
       * A selectable history of the user's past triangles.
       * Draw/compute/classify different types of shapes
