@@ -42,7 +42,7 @@ I approached the project with a few design principles/goals/plans:
       * Labels for each side, corresponding to the labels for each input, so that it's obvious what input mathces what side
       * Coordinate labels positioned more attractively/appropriately, depending on the shape of the triangle.
       * A selectable history of the user's past triangles.
-      
+      * Draw/compute/classify different types of shapes
 I left those out, but I also tried to write the app in a way that laid the necessary groundwork for them. There are almost no magical constants in the app. Almost everything is programmatic and parameterized. In order to add some of the things listed above, I wouldn't need to make large changes to the functions I wrote; I'd just need to pass them different parameters and call them in different ways/orders.
 
 
