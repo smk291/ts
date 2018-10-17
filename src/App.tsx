@@ -72,7 +72,7 @@ export default class App extends React.Component<{}, {}> {
           Triangle Classifier
         </h2>
         <div>
-          Enter three positive, non-zero numbers below.
+          Enter three positive, finite numbers below.
         </div>
         <div>
           If they form a valid triangle, I'll plot the triangle on the grid below and tell you what kind of triangle it is (<span className='scalene'>scalene</span>, <span className='isosceles'>isosceles</span> or <span className='equilateral'>equilateral</span>).
