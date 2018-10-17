@@ -36,6 +36,7 @@ I approached the project with a few design principles/goals/plans:
 
 1. **No magical constants. Do everything with functions and parameters.** Some of the things I thought about adding: 
       * Sliders to change side lengths
+      * Animated transitions from one triangle shape to another
       * Responsive design
       * A Cartesian grid that scales with the lengths of the triangle's sides
       * Labels for each side, corresponding to the labels for each input, so that it's obvious what input mathces what side
