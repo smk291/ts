@@ -20,7 +20,7 @@ export function computeAndGraphTriangle(this: App, sidesFromRefs: number[] | nul
 
   // The goal is to plot the user's triangle in the NE quadrant of a Cartesian graph,
   // and to add labels to each vertex showing the x and y coordinates of that
-  // vertex on the Cartesian graph.
+  // vertex on the graph.
   // The app does this on a canvas element.
   // Two problems:
   // 1) Canvas's coordinates aren't counted the way Cartesian coordinates are counted.
