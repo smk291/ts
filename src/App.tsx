@@ -19,7 +19,7 @@ export default class App extends React.Component<{}, {}> {
   // It also includes the 'evaluate' button
   inputs: React.RefObject<HTMLDivElement>;
 
-  // 'drawGrid' draws the grid/graph
+  // 'drawGrid' draws the Cartesian grid/graph
   drawGrid: DrawGridFn;
   // 'isValidTriangle' tests whether the three values form a valid triangle
   // If the inputs fail this test, the app will not try to draw a triangle
