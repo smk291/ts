@@ -15,7 +15,7 @@ export default class App extends React.Component<{}, {}> {
   // this.canvas is a React ref bound to a canvas element.
   // This is where the app draws a triangle proportional to the user's inputs
   canvas: React.RefObject<HTMLCanvasElement>;
-  // 'this.inputs' is a React ref includes the three text inputs where uses can enter the side lengths
+  // 'this.inputs' is a React ref; its children include the three text inputs where uses can enter the side lengths
   // It also includes the 'evaluate' button
   inputs: React.RefObject<HTMLDivElement>;
 
