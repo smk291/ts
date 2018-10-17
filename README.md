@@ -25,7 +25,7 @@ I approached the project with a few design principles/goals/plans:
 
     The goal of writing classes this way is, again, to reduce cognitive demands and make code more readable and maintainable. My App class can be taken in and digested at a glance. The constructor and menber declarations all fit on a single page. So does the JSX. Ideally another developer should be able to scan my code and determine, with ease, how each part is meant to fit into the whole -- and then jump to relevant parts of the class if s/he needs to modify something.
 
-    About half-way through the project I started refactoring the code to add a custom Triangle class. But the class was either too small to justify the additional complexity/boilerplate or became so large that it engulfed the entire app. That's not to say they couldn't be used well in this project/app. I just didn't have any obvious need/use for them.
+    About half-way through the project I started refactoring the code to add a custom Triangle class. But the class was either too small to justify the additional complexity/boilerplate or became so large that it engulfed the entire app. That's not to say classes couldn't be used well in this project/app. I just didn't have any obvious need/use for them.
 
 1. UI-wise, my decision to use React hamstrung me more than I expected. I couldn't make some of the Tradeshift UI elements work. I'm guessing that that's because they're directly manipulating the DOM, preventing React from seeing them and correctly reconciling the changes. In the past, I think I've encountered and solved this kind of problem in a few different ways, but given the time constraints, I decided that that shouldn't be a priority.
 
