@@ -7,7 +7,7 @@ We are looking for solutions that showcase problem solving skills and structural
 
 # Description
 
-The app I wrote takes three sides as inputs and returns whether the triangle is equilateral, isosceles or scalene. The app does a couple of additional things: it warns the user if the inputs aren't valid lengths; it warns if the lengths can't comprise a valid, flat, 2d triangle; and if the lengths do comprise a valid triangle, the app graphs the triangle and labels the coordinates of its vertices.
+The app I wrote takes three sides as inputs and returns whether the triangle is equilateral, isosceles or scalene. The app does a couple of additional things: it warns the user if the inputs aren't valid lengths; it warns if the lengths can't form a valid, flat, 2d triangle; and if the lengths do comprise a valid triangle, the app graphs the triangle and labels the coordinates of its vertices.
 
 # Discussion:
 
