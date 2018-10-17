@@ -100,7 +100,7 @@ export function computeAndGraphTriangle(this: App, sidesFromRefs: number[] | nul
 
   // 'createLabels' returns an object.
   // 'label' is a text label providing the x and y coordinates of the vertex on the Cartesian graph
-  // 'coords' is an array of two numbers -- an x coordinate and a y coordinate
+  // 'coords' is an array of two numbers -- the x coordinate and a y coordinate where the label will appear on the canvas element
   const labels = createLabels(horizontalOffset, verticalOffset, scalingFactor, xMin, uncorrectedCanvasCoords);
 
   // Draw labels
